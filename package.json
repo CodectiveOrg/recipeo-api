@@ -1,5 +1,5 @@
 {
-  "name": "recipes-api",
+  "name": "recipeo-api",
   "version": "1.0.0",
   "scripts": {
     "dev": "tsx watch src/main.ts",
