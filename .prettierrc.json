@@ -1,9 +1,11 @@
 {
   "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "importOrder": [
+    "^(node:.+)(/(.*))?$",
     "^(express|body-parser|cookie-parser|cors)(/(.*))?$",
     "^typeorm(/(.*))?$",
     "^multer(/(.*))?$",
+    "^file-type(/(.*))?$",
     "^(jsonwebtoken|bcrypt)(/(.*))?$",
     "^zod(/(.*))?$",
     "^(reflect-metadata|dotenv)(/(.*))?$",
