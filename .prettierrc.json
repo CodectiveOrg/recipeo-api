@@ -18,6 +18,7 @@
     "^@/routes",
     "^@/seed",
     "^@/services",
+    "^@/truncate",
     "^@/types",
     "^@/utils",
     "^(\\.|\\.\\.)/.*$"

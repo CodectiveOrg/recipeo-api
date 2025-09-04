@@ -8,6 +8,7 @@
     "build": "tsc",
     "preview": "node dist/main.js",
     "seed": "tsx src/seed/index.ts",
+    "truncate": "tsx src/truncate/index.ts",
     "lint": "eslint .",
     "prettier:check": "prettier . --check",
     "prettier:fix": "prettier . --write"

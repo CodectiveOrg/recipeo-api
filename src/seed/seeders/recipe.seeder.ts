@@ -45,6 +45,7 @@ export class RecipeSeeder {
   }
 
   public async seed(): Promise<void> {
+    await fs.mkdir(this.folderPath, { recursive: true });
     await this.seedRecipes();
   }
 
