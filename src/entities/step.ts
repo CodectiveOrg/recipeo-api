@@ -11,7 +11,7 @@ export class Step {
   public position!: number;
 
   @Column("text")
-  public title!: string;
+  public description!: string;
 
   @ManyToOne(() => Recipe, (recipe) => recipe.steps)
   public recipe!: Recipe;

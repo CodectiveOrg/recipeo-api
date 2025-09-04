@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,6 +11,7 @@ import {
 import { Ingredient } from "@/entities/ingredient";
 import { Step } from "@/entities/step";
 import { Tag } from "@/entities/tag";
+import { User } from "@/entities/user";
 
 @Entity()
 export class Recipe {
@@ -38,6 +40,9 @@ export class Recipe {
 
   @OneToMany(() => Step, (step) => step.recipe, { cascade: true })
   public steps!: Step[];
+
+  @ManyToOne(() => User, (user) => user.recipes)
+  public user!: User;
 
   @CreateDateColumn()
   public createdAt!: Date;

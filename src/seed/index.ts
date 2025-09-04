@@ -1,10 +1,11 @@
 import "dotenv/config";
 
+import { RecipeSeeder } from "@/seed/seeders/recipe.seeder";
+import { UserSeeder } from "@/seed/seeders/user.seeder";
+
 import { DatabaseService } from "@/services/database.service";
 
 import { validateEnv } from "@/utils/env.utils";
-
-import { Seeder } from "./seeder";
 
 async function main(): Promise<void> {
   validateEnv();
@@ -16,8 +17,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  const seeder = new Seeder(databaseService);
-  await seeder.seed();
+  await new UserSeeder(databaseService).seed();
+  await new RecipeSeeder(databaseService).seed();
 }
 
 main().then();
