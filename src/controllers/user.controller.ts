@@ -45,6 +45,7 @@ export class UserController {
     const updatedUser = assignDefinedValues(user, body);
 
     if (req.file) {
+      await this.fileService.remove(user.picture);
       updatedUser.picture = await this.fileService.save(req.file);
     }
 

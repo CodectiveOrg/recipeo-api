@@ -41,4 +41,13 @@ export class FileService {
       return null;
     }
   }
+
+  public async remove(filename: string | null): Promise<void> {
+    if (!filename) {
+      return;
+    }
+
+    const filePath = path.join(this.folderPath, filename);
+    await fs.rm(filePath, { force: true });
+  }
 }
