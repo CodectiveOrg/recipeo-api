@@ -15,17 +15,33 @@ import { DatabaseService } from "@/services/database.service";
 
 import { formatFilenamePrefix } from "@/utils/format.utils";
 
+const BASE_URL = "https://api.spoonacular.com/recipes/random";
+
 export class RecipeSeeder {
-  private recipeRepo!: Repository<Recipe>;
-  private userRepo!: Repository<User>;
+  private readonly recipeRepo: Repository<Recipe>;
+  private readonly userRepo: Repository<User>;
+
+  private readonly batchSize: number;
 
   public constructor(databaseService: DatabaseService) {
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.userRepo = databaseService.dataSource.getRepository(User);
+
+    const envBatchSize = process.env.RECIPE_SEEDER_BATCH_SIZE!;
+    this.batchSize = Number.parseInt(envBatchSize) || 10;
   }
 
   private get folderPath(): string {
     return path.join(process.env.FILE_STORAGE_PATH!, "recipe");
+  }
+
+  private get apiUrl(): string {
+    const params = new URLSearchParams({
+      apiKey: process.env.SPOONACULAR_API_KEY!,
+      number: this.batchSize.toString(),
+    });
+
+    return `${BASE_URL}?${params}`;
   }
 
   public async seed(): Promise<void> {
@@ -58,9 +74,7 @@ export class RecipeSeeder {
   private async fetchRandomRecipes(): Promise<SeedRecipeType[] | null> {
     console.log("Fetching random recipes...");
 
-    const response = await fetch(
-      `https://api.spoonacular.com/recipes/random?apiKey=${process.env.SPOONACULAR_API_KEY!}&number=1`,
-    );
+    const response = await fetch(this.apiUrl);
 
     if (!response.ok) {
       console.warn("Fetch failed.");

@@ -10,7 +10,7 @@ import { DatabaseService } from "@/services/database.service";
 import { hashPassword } from "@/utils/auth.utils";
 
 export class UserSeeder {
-  private userRepo!: Repository<User>;
+  private readonly userRepo: Repository<User>;
 
   public constructor(databaseService: DatabaseService) {
     this.userRepo = databaseService.dataSource.getRepository(User);
