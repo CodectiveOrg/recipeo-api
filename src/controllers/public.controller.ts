@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { Like } from "typeorm";
+import { Like, Repository } from "typeorm";
 
 import { PublicHelloResponseDto } from "@/dto/public-response.dto";
 
@@ -11,7 +11,7 @@ import { DatabaseService } from "@/services/database.service";
 import { fetchUserFromToken } from "@/utils/api.utils";
 
 export class PublicController {
-  private readonly userRepo;
+  private readonly userRepo: Repository<User>;
 
   public constructor(databaseService: DatabaseService) {
     this.userRepo = databaseService.dataSource.getRepository(User);

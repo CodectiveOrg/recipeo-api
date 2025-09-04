@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 
+import { Repository } from "typeorm";
+
 import { z } from "zod";
 
 import { EmailSchema } from "@/validation/schemas/email.schema";
@@ -20,7 +22,7 @@ import { assignDefinedValues } from "@/utils/object.utils";
 export class UserController {
   private readonly fileService: FileService;
 
-  private readonly userRepo;
+  private readonly userRepo: Repository<User>;
 
   public constructor(databaseService: DatabaseService) {
     this.fileService = new FileService("user");
