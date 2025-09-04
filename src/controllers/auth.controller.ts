@@ -4,7 +4,6 @@ import { Like } from "typeorm";
 
 import { z } from "zod";
 
-import { EmailSchema } from "@/validation/schemas/email.schema";
 import { PasswordSchema } from "@/validation/schemas/password.schema";
 import { UsernameSchema } from "@/validation/schemas/username.schema";
 
@@ -43,15 +42,15 @@ export class AuthController {
     res: Response<AuthSignUpResponseDto>,
   ): Promise<void> {
     const body = SignUpBodySchema.parse(req.body);
-    const { username, email, password } = body;
+    const { username, password } = body;
 
     const user = await this.userRepo.findOne({
-      where: [{ username: Like(username) }, { email: Like(email) }],
+      where: [{ username: Like(username) }],
     });
 
     if (user) {
       res.status(409).json({
-        message: "Username or email is already taken.",
+        message: "Username is already taken.",
         error: "Conflict",
       });
 
@@ -128,7 +127,6 @@ export class AuthController {
 
 const SignUpBodySchema = z.object({
   username: UsernameSchema,
-  email: EmailSchema,
   password: PasswordSchema,
 });
 
