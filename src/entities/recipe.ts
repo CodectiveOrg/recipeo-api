@@ -25,6 +25,9 @@ export class Recipe {
   @Column("int")
   public duration!: number;
 
+  @Column("text", { nullable: true })
+  public picture!: string | null;
+
   @OneToMany(() => Tag, (tag) => tag.recipe, { cascade: true })
   public tags!: Tag[];
 
