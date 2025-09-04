@@ -19,7 +19,9 @@ export class Seeder {
     await Promise.allSettled(USERS.map(this.seedUser.bind(this)));
   }
 
-  private async seedUser(user: Omit<User, "id">): Promise<void> {
+  private async seedUser(
+    user: Omit<User, "id" | "createdAt" | "updatedAt">,
+  ): Promise<void> {
     const hashedPassword = await hashPassword(user.password);
     await this.userRepo.save({ ...user, password: hashedPassword });
   }

@@ -1,6 +1,6 @@
 import { User } from "@/entities/user";
 
-export const USERS: Omit<User, "id" | "histories">[] = [
+export const USERS: Omit<User, "id" | "createdAt" | "updatedAt">[] = [
   {
     username: "BijanProgrammer",
     email: "bijan@gmail.com",
@@ -22,12 +22,6 @@ export const USERS: Omit<User, "id" | "histories">[] = [
   {
     username: "Alireza",
     email: "alireza@gmail.com",
-    password: "1234",
-    picture: null,
-  },
-  {
-    username: "carozamani",
-    email: "carozamani@gmail.com",
     password: "1234",
     picture: null,
   },
