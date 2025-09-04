@@ -116,6 +116,7 @@ export class RecipeSeeder {
     const picture = await this.downloadPicture(recipe.image, recipe.imageType);
 
     return {
+      id: recipe.id,
       title: recipe.title,
       description: recipe.summary.split(".")[0],
       duration: recipe.readyInMinutes,
