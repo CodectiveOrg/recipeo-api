@@ -1,6 +1,6 @@
-import { User } from "@/entities/user";
+import { SeedUserType } from "@/seed/types/seed-user.type";
 
-export const USERS: Omit<User, "id" | "histories">[] = [
+export const usersData: SeedUserType[] = [
   {
     username: "BijanProgrammer",
     email: "bijan@gmail.com",
@@ -22,12 +22,6 @@ export const USERS: Omit<User, "id" | "histories">[] = [
   {
     username: "Alireza",
     email: "alireza@gmail.com",
-    password: "1234",
-    picture: null,
-  },
-  {
-    username: "carozamani",
-    email: "carozamani@gmail.com",
     password: "1234",
     picture: null,
   },

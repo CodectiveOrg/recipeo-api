@@ -10,6 +10,8 @@ import { globalErrorHandler } from "@/handlers/global-error.handler";
 
 import { generateAuthRoutes } from "@/routes/auth.route";
 import { generatePublicRoutes } from "@/routes/public.route";
+import { generateRecipeRoutes } from "@/routes/recipe.route";
+import { generateUserRoutes } from "@/routes/user.route";
 
 import { DatabaseService } from "@/services/database.service";
 
@@ -34,6 +36,8 @@ async function main(): Promise<void> {
 
   app.use("/api/auth", generateAuthRoutes(databaseService));
   app.use("/api/public", generatePublicRoutes(databaseService));
+  app.use("/api/recipe", generateRecipeRoutes(databaseService));
+  app.use("/api/user", generateUserRoutes(databaseService));
 
   app.use(globalErrorHandler);
 

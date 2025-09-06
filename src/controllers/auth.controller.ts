@@ -1,24 +1,20 @@
 import { Request, Response } from "express";
 
-import { Like } from "typeorm";
+import { Like, Repository } from "typeorm";
 
 import { z } from "zod";
 
-import { EmailSchema } from "@/validation/schemas/email.schema";
 import { PasswordSchema } from "@/validation/schemas/password.schema";
 import { UsernameSchema } from "@/validation/schemas/username.schema";
 
-import {
-  AuthSignInResponseDto,
-  AuthSignOutResponseDto,
-  AuthSignUpResponseDto,
-  AuthVerifyResponseDto,
-} from "@/dto/auth-response.dto";
+import { AuthVerifyResponseDto } from "@/dto/auth-response.dto";
+import { ResponseDto } from "@/dto/response.dto";
 
 import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
 
+import { selectUserWithAllColumns } from "@/utils/api.utils";
 import {
   comparePasswords,
   generateToken,
@@ -27,7 +23,7 @@ import {
 import { mapToTokenPayload } from "@/utils/mapper.utils";
 
 export class AuthController {
-  private readonly userRepo;
+  private readonly userRepo: Repository<User>;
 
   public constructor(databaseService: DatabaseService) {
     this.userRepo = databaseService.dataSource.getRepository(User);
@@ -38,20 +34,17 @@ export class AuthController {
     this.verify = this.verify.bind(this);
   }
 
-  public async signUp(
-    req: Request,
-    res: Response<AuthSignUpResponseDto>,
-  ): Promise<void> {
+  public async signUp(req: Request, res: Response<ResponseDto>): Promise<void> {
     const body = SignUpBodySchema.parse(req.body);
-    const { username, email, password } = body;
+    const { username, password } = body;
 
     const user = await this.userRepo.findOne({
-      where: [{ username: Like(username) }, { email: Like(email) }],
+      where: [{ username: Like(username) }],
     });
 
     if (user) {
       res.status(409).json({
-        message: "Username or email is already taken.",
+        message: "Username is already taken.",
         error: "Conflict",
       });
 
@@ -66,16 +59,13 @@ export class AuthController {
     res.status(201).json({ message: "Signed up successfully." });
   }
 
-  public async signIn(
-    req: Request,
-    res: Response<AuthSignInResponseDto>,
-  ): Promise<void> {
+  public async signIn(req: Request, res: Response<ResponseDto>): Promise<void> {
     const body = SignInBodySchema.parse(req.body);
     const { username, password } = body;
 
-    const user = await this.userRepo.findOne({
-      where: { username: Like(username) },
-    });
+    // NOTE: Since some columns aren't selected by default,
+    //       the easiest way to select all columns is to use this method.
+    const user = await selectUserWithAllColumns(this.userRepo, username);
 
     if (!user) {
       res.status(401).json({
@@ -102,10 +92,7 @@ export class AuthController {
     res.json({ message: "Signed in successfully." });
   }
 
-  public async signOut(
-    _: Request,
-    res: Response<AuthSignOutResponseDto>,
-  ): Promise<void> {
+  public async signOut(_: Request, res: Response<ResponseDto>): Promise<void> {
     res.clearCookie(process.env.TOKEN_KEY!);
 
     res.json({ message: "Signed out successfully." });
@@ -128,7 +115,6 @@ export class AuthController {
 
 const SignUpBodySchema = z.object({
   username: UsernameSchema,
-  email: EmailSchema,
   password: PasswordSchema,
 });
 
