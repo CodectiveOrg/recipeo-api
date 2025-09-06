@@ -20,7 +20,7 @@ export class User {
   @Column("text", { nullable: true })
   public email!: string;
 
-  @Column("text")
+  @Column("text", { select: false })
   public password!: string;
 
   @Column("text", { nullable: true })
