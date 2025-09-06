@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import { FeaturedSeeder } from "@/seed/seeders/featured.seeder";
 import { RecipeSeeder } from "@/seed/seeders/recipe.seeder";
 import { UserSeeder } from "@/seed/seeders/user.seeder";
 
@@ -18,7 +19,13 @@ async function main(): Promise<void> {
   }
 
   await new UserSeeder(databaseService).seed();
+  console.log("");
   await new RecipeSeeder(databaseService).seed();
+  console.log("");
+  await new FeaturedSeeder(databaseService).seed();
+  console.log("");
+
+  await databaseService.dataSource.destroy();
 }
 
 main().then();

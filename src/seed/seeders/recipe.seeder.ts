@@ -27,8 +27,8 @@ export class RecipeSeeder {
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.userRepo = databaseService.dataSource.getRepository(User);
 
-    const envBatchSize = process.env.RECIPE_SEEDER_BATCH_SIZE!;
-    this.batchSize = Number.parseInt(envBatchSize) || 10;
+    const envBatchSize = Number.parseInt(process.env.RECIPE_SEEDER_BATCH_SIZE!);
+    this.batchSize = !isNaN(envBatchSize) ? envBatchSize : 10;
   }
 
   private get folderPath(): string {
@@ -50,6 +50,13 @@ export class RecipeSeeder {
   }
 
   private async seedRecipes(): Promise<void> {
+    console.log("Start seeding recipes...");
+
+    if (this.batchSize <= 0) {
+      console.log("Batch size doesn't allow more seeding.");
+      return;
+    }
+
     const users = await this.userRepo.find({
       where: { username: In(usersData.map((user) => user.username)) },
     });
@@ -70,6 +77,7 @@ export class RecipeSeeder {
     }));
 
     await this.recipeRepo.save(recipes);
+    console.log("Recipes seeded successfully.");
   }
 
   private async fetchRandomRecipes(): Promise<SeedRecipeType[] | null> {
