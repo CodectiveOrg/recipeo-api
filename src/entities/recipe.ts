@@ -11,6 +11,7 @@ import {
 
 import { Featured } from "@/entities/featured";
 import { Ingredient } from "@/entities/ingredient";
+import { Like } from "@/entities/like";
 import { Step } from "@/entities/step";
 import { Tag } from "@/entities/tag";
 import { User } from "@/entities/user";
@@ -42,6 +43,9 @@ export class Recipe {
 
   @OneToMany(() => Step, (step) => step.recipe, { cascade: true })
   public steps!: Step[];
+
+  @OneToMany(() => Like, (like) => like.recipe, { cascade: true })
+  public likes!: Like[];
 
   @ManyToOne(() => User, (user) => user.recipes)
   public user!: User;

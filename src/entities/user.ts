@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
+import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
 
 @Entity()
@@ -28,6 +29,9 @@ export class User {
 
   @OneToMany(() => Recipe, (recipe) => recipe.user)
   public recipes!: Recipe[];
+
+  @OneToMany(() => Like, (like) => like.user)
+  public likes!: Like[];
 
   @CreateDateColumn({ select: false })
   public createdAt!: Date;
