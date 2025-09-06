@@ -32,7 +32,15 @@ export class RecipeController {
   ): Promise<void> {
     const params = GetRecipeParamsSchema.parse(req.params);
 
-    const recipe = await this.recipeRepo.findOne({ where: { id: params.id } });
+    const recipe = await this.recipeRepo.findOne({
+      where: { id: params.id },
+      relations: {
+        tags: true,
+        ingredients: true,
+        steps: true,
+        user: true,
+      },
+    });
 
     if (!recipe) {
       res.status(404).json({

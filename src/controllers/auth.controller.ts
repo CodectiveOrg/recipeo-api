@@ -15,6 +15,10 @@ import { User } from "@/entities/user";
 import { DatabaseService } from "@/services/database.service";
 
 import {
+  fetchUserFromToken,
+  selectUserWithAllColumns,
+} from "@/utils/api.utils";
+import {
   comparePasswords,
   generateToken,
   hashPassword,
@@ -62,14 +66,9 @@ export class AuthController {
     const body = SignInBodySchema.parse(req.body);
     const { username, password } = body;
 
-    // NOTE: Since password isn't selected by default,
-    //       and we need all columns to generate token from them,
-    //       the easiest way to select all columns is to use a query builder.
-    const user = await this.userRepo
-      .createQueryBuilder("user")
-      .addSelect("user.password")
-      .where({ username: Like(username) })
-      .getOne();
+    // NOTE: Since some columns aren't selected by default,
+    //       the easiest way to select all columns is to use this method.
+    const user = await selectUserWithAllColumns(this.userRepo, username);
 
     if (!user) {
       res.status(401).json({

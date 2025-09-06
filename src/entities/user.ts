@@ -17,7 +17,7 @@ export class User {
   @Column("text")
   public username!: string;
 
-  @Column("text", { nullable: true })
+  @Column("text", { select: false, nullable: true })
   public email!: string;
 
   @Column("text", { select: false })
@@ -29,9 +29,9 @@ export class User {
   @OneToMany(() => Recipe, (recipe) => recipe.user)
   public recipes!: Recipe[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   public createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   public updatedAt!: Date;
 }
