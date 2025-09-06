@@ -4,10 +4,12 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 
+import { Featured } from "@/entities/featured";
 import { Ingredient } from "@/entities/ingredient";
 import { Step } from "@/entities/step";
 import { Tag } from "@/entities/tag";
@@ -43,6 +45,9 @@ export class Recipe {
 
   @ManyToOne(() => User, (user) => user.recipes)
   public user!: User;
+
+  @OneToOne(() => Featured, (featured) => featured.recipe, { cascade: true })
+  public featured!: Featured;
 
   @CreateDateColumn()
   public createdAt!: Date;
