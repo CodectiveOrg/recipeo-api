@@ -14,10 +14,7 @@ import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
 
-import {
-  fetchUserFromToken,
-  selectUserWithAllColumns,
-} from "@/utils/api.utils";
+import { selectUserWithAllColumns } from "@/utils/api.utils";
 import {
   comparePasswords,
   generateToken,
