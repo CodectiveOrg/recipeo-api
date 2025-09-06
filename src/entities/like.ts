@@ -13,12 +13,12 @@ export class Like {
   @PrimaryGeneratedColumn()
   public id!: number;
 
-  @ManyToOne(() => User, (user) => user.likes)
+  @ManyToOne(() => User, (user) => user.likes, { onDelete: "CASCADE" })
   public user!: User;
 
-  @ManyToOne(() => Recipe, (recipe) => recipe.likes)
+  @ManyToOne(() => Recipe, (recipe) => recipe.likes, { onDelete: "CASCADE" })
   public recipe!: Recipe;
 
-  @CreateDateColumn({ select: false })
+  @CreateDateColumn()
   public createdAt!: Date;
 }
