@@ -77,17 +77,10 @@ export class RecipeController {
     _: Request,
     res: Response<GetPopularResponseDto>,
   ): Promise<void> {
-    const recipes = await this.databaseService.dataSource
-      .createQueryBuilder()
-      .select("recipe.id", "id")
-      .addSelect("recipe.title", "title")
-      .addSelect("recipe.description", "description")
-      .addSelect("recipe.duration", "duration")
-      .addSelect("recipe.picture", "picture")
-      .addSelect("recipe.tags", "tags")
-      .addSelect("recipe.likes", "likes")
-      .addSelect("ROW_NUMBER() OVER (ORDER BY COUNT(likes) DESC)", "rank")
-      .getRawMany();
+    const recipes = await this.recipeRepo
+      .createQueryBuilder("recipe")
+      .orderBy("COUNT(likes)", "DESC")
+      .getMany();
 
     res.json({
       message: "Popular recipes fetched successfully.",
