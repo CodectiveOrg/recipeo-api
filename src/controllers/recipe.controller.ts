@@ -7,6 +7,7 @@ import { z } from "zod";
 import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
+  GetRecipesResponseDto,
 } from "@/dto/recipe-response.dto";
 
 import { Featured } from "@/entities/featured";
@@ -24,6 +25,7 @@ export class RecipeController {
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
+    this.getRecent = this.getRecent.bind(this);
   }
 
   public async getOneRecipe(
@@ -68,6 +70,28 @@ export class RecipeController {
     res.json({
       message: "Recipe fetched successfully.",
       result: featured,
+    });
+  }
+
+  public async getRecent(
+    _: Request,
+    res: Response<GetRecipesResponseDto>,
+  ): Promise<void> {
+    const recentRecipes = await this.recipeRepo.find({
+      relations: {
+        ingredients: true,
+        tags: true,
+        user: true,
+      },
+      order: {
+        createdAt: "DESC",
+      },
+      take: 10,
+    });
+
+    res.json({
+      message: "Recent recipes fetched successfully.",
+      result: recentRecipes,
     });
   }
 }
