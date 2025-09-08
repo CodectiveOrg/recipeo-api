@@ -49,9 +49,6 @@ export class UserController {
     const user = await this.userRepo
       .createQueryBuilder("user")
       .where("user.id = :id", { id: params.id })
-      .loadRelationCountAndMap("user.recipesCount", "user.recipes")
-      .loadRelationCountAndMap("user.followersCount", "user.followers")
-      .loadRelationCountAndMap("user.followingCount", "user.following")
       .getOne();
 
     if (!user) {

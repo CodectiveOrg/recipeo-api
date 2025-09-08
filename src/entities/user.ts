@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  VirtualColumn,
 } from "typeorm";
 
 import { Like } from "@/entities/like";
@@ -48,7 +49,21 @@ export class User {
   @UpdateDateColumn({ select: false })
   public updatedAt!: Date;
 
+  @VirtualColumn("int", {
+    query: (alias) =>
+      `SELECT COUNT(*) FROM recipe WHERE recipe."userId" = ${alias}.id`,
+  })
   public recipesCount: number = 0;
+
+  @VirtualColumn("int", {
+    query: (alias) =>
+      `SELECT COUNT(*) FROM user_followers_user ufu WHERE ufu."userId_1" = ${alias}.id`,
+  })
   public followersCount: number = 0;
+
+  @VirtualColumn("int", {
+    query: (alias) =>
+      `SELECT COUNT(*) FROM user_followers_user ufu WHERE ufu."userId_2" = ${alias}.id`,
+  })
   public followingCount: number = 0;
 }
