@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -29,9 +31,20 @@ export class User {
   @OneToMany(() => Recipe, (recipe) => recipe.user)
   public recipes!: Recipe[];
 
+  @ManyToMany(() => User, (user) => user.following)
+  @JoinTable()
+  public followers!: User[];
+
+  @ManyToMany(() => User, (user) => user.followers)
+  public following!: User[];
+
   @CreateDateColumn({ select: false })
   public createdAt!: Date;
 
   @UpdateDateColumn({ select: false })
   public updatedAt!: Date;
+
+  public recipesCount: number = 0;
+  public followersCount: number = 0;
+  public followingCount: number = 0;
 }
