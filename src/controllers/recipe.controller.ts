@@ -32,15 +32,15 @@ export class RecipeController {
   ): Promise<void> {
     const params = GetOneRecipeParamsSchema.parse(req.params);
 
-    const recipe = await this.recipeRepo.findOne({
-      where: { id: params.id },
-      relations: {
-        tags: true,
-        ingredients: true,
-        steps: true,
-        user: true,
-      },
-    });
+    const recipe = await this.recipeRepo
+      .createQueryBuilder("recipe")
+      .where("recipe.id = :id", { id: params.id })
+      .leftJoinAndSelect("recipe.tags", "tags")
+      .leftJoinAndSelect("recipe.ingredients", "ingredients")
+      .leftJoinAndSelect("recipe.steps", "steps")
+      .leftJoinAndSelect("recipe.user", "user")
+      .loadRelationCountAndMap("recipe.likesCount", "recipe.likes")
+      .getOne();
 
     if (!recipe) {
       res.status(404).json({

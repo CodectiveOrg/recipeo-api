@@ -58,4 +58,6 @@ export class Recipe {
 
   @UpdateDateColumn()
   public updatedAt!: Date;
+
+  public likesCount: number = 0;
 }
