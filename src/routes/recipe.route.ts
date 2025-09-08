@@ -11,7 +11,7 @@ export function generateRecipeRoutes(databaseService: DatabaseService): Router {
   const controller = new RecipeController(databaseService);
 
   router.get("/featured", controller.getFeatured);
-  router.patch("/like-unlike", tokenMiddleware, controller.likeUnlike);
+  router.patch("/like-and-unlike", tokenMiddleware, controller.likeAndUnlike);
   router.get("/:id", tokenMiddleware, controller.getOneRecipe);
 
   return router;

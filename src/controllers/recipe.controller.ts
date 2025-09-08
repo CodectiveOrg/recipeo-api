@@ -9,7 +9,7 @@ import { findRecipeById } from "@/queries/recipe.query";
 import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
-  likeUnlikeRessponseDto,
+  likeAndUnlikeRessponseDto,
 } from "@/dto/recipe-response.dto";
 
 import { Featured } from "@/entities/featured";
@@ -27,7 +27,7 @@ export class RecipeController {
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
-    this.likeUnlike = this.likeUnlike.bind(this);
+    this.likeAndUnlike = this.likeAndUnlike.bind(this);
   }
 
   public async getOneRecipe(
@@ -71,11 +71,11 @@ export class RecipeController {
     });
   }
 
-  public async likeUnlike(
+  public async likeAndUnlike(
     req: Request,
-    res: Response<likeUnlikeRessponseDto>,
+    res: Response<likeAndUnlikeRessponseDto>,
   ): Promise<void> {
-    const { id } = likeUnlikeSchema.parse(req.body);
+    const { id } = likeAndUnlikeSchema.parse(req.body);
 
     const recipe = await findRecipeById(
       this.recipeRepo,
@@ -108,6 +108,6 @@ const GetOneRecipeParamsSchema = z.object({
   id: z.coerce.number(),
 });
 
-const likeUnlikeSchema = z.object({
+const likeAndUnlikeSchema = z.object({
   id: z.coerce.number(),
 });
