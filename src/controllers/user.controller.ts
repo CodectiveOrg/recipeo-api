@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 
 import { z } from "zod";
 
@@ -32,13 +32,15 @@ export class UserController {
 
     this.getOneUser = this.getOneUser.bind(this);
     this.update = this.update.bind(this);
+    this.follow = this.follow.bind(this);
+    this.unfollow = this.unfollow.bind(this);
   }
 
   public async getOneUser(
     req: Request,
     res: Response<GetOneUserResponseDto>,
   ): Promise<void> {
-    const params = GetOneRecipeParamsSchema.parse(req.params);
+    const params = GetOneUserParamsSchema.parse(req.params);
 
     const user = await this.userRepo
       .createQueryBuilder("user")
@@ -87,14 +89,106 @@ export class UserController {
 
     await this.userRepo.save(updatedUser);
 
-    res.json({
-      message: "Profile updated successfully.",
+    res.json({ message: "Profile updated successfully." });
+  }
+
+  public async follow(req: Request, res: Response<ResponseDto>): Promise<void> {
+    const params = FollowParamsSchema.parse(req.params);
+
+    const currentUser = await this.userRepo.findOne({
+      where: { username: Like(res.locals.user.username) },
+      relations: { following: true },
     });
+
+    if (!currentUser) {
+      res.status(404).json({
+        message: "Current user not found.",
+        error: "Not Found",
+      });
+
+      return;
+    }
+
+    if (currentUser.following.some((user) => user.id === params.targetUserId)) {
+      res.status(400).json({
+        message: "You are already following this user.",
+        error: "Bad Request",
+      });
+
+      return;
+    }
+
+    const targetUser = await this.userRepo.findOne({
+      where: { id: params.targetUserId },
+    });
+
+    if (!targetUser) {
+      res.status(404).json({
+        message: "Target user not found.",
+        error: "Not Found",
+      });
+
+      return;
+    }
+
+    currentUser.following.push(targetUser);
+
+    await this.userRepo.save(currentUser);
+
+    res.json({ message: "Followed successfully." });
+  }
+
+  public async unfollow(
+    req: Request,
+    res: Response<ResponseDto>,
+  ): Promise<void> {
+    const params = UnfollowParamsSchema.parse(req.params);
+
+    const currentUser = await this.userRepo.findOne({
+      where: { username: Like(res.locals.user.username) },
+      relations: { following: true },
+    });
+
+    if (!currentUser) {
+      res.status(404).json({
+        message: "Current user not found.",
+        error: "Not Found",
+      });
+
+      return;
+    }
+
+    if (
+      !currentUser.following.some((user) => user.id === params.targetUserId)
+    ) {
+      res.status(400).json({
+        message: "You are not following this user.",
+        error: "Bad Request",
+      });
+
+      return;
+    }
+
+    currentUser.following = currentUser.following.filter(
+      (user) => user.id !== params.targetUserId,
+    );
+
+    await this.userRepo.save(currentUser);
+
+    res.json({ message: "Unfollowed successfully." });
   }
 }
 
-const GetOneRecipeParamsSchema = z.object({
+const GetOneUserParamsSchema = z.object({
   id: z.coerce.number(),
+});
+
+const FollowParamsSchema = z.object({
+  targetUserId: z.coerce.number(),
+});
+
+const UnfollowParamsSchema = z.object({
+  targetUserId: z.coerce.number(),
 });
 
 const UpdateBodySchema = z.object({
