@@ -9,6 +9,7 @@ import { findRecipeById } from "@/queries/recipe.query";
 import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
+  likeUnlikeRessponseDto,
 } from "@/dto/recipe-response.dto";
 
 import { Featured } from "@/entities/featured";
@@ -26,6 +27,7 @@ export class RecipeController {
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
+    this.likeUnlike = this.likeUnlike.bind(this);
   }
 
   public async getOneRecipe(
@@ -68,8 +70,44 @@ export class RecipeController {
       result: featured,
     });
   }
+
+  public async likeUnlike(
+    req: Request,
+    res: Response<likeUnlikeRessponseDto>,
+  ): Promise<void> {
+    const { id } = likeUnlikeSchema.parse(req.body);
+
+    const recipe = await findRecipeById(
+      this.recipeRepo,
+      id,
+      res.locals.user?.id,
+    );
+
+    if (!recipe) {
+      res.status(404).json({
+        message: "Recipe not found.",
+        error: "Not Found",
+      });
+
+      return;
+    }
+
+    const { isLikedByCurrentUser } = recipe;
+    recipe.isLikedByCurrentUser = !isLikedByCurrentUser;
+
+    await this.recipeRepo.save(recipe);
+
+    res.json({
+      message: "Recipe updated successfuly.",
+      result: recipe,
+    });
+  }
 }
 
 const GetOneRecipeParamsSchema = z.object({
+  id: z.coerce.number(),
+});
+
+const likeUnlikeSchema = z.object({
   id: z.coerce.number(),
 });
