@@ -1,5 +1,6 @@
 import { ResponseDto } from "@/dto/response.dto";
 
+import { Recipe } from "@/entities/recipe";
 import { User } from "@/entities/user";
 
 export type GetOneUserResponseDto = ResponseDto<
@@ -9,3 +10,5 @@ export type GetOneUserResponseDto = ResponseDto<
     followingCount: number;
   }
 >;
+
+export type GetAllRecipesResponseDto = ResponseDto<Recipe[]>;

@@ -9,7 +9,10 @@ import { PasswordSchema } from "@/validation/schemas/password.schema";
 import { UsernameSchema } from "@/validation/schemas/username.schema";
 
 import { ResponseDto } from "@/dto/response.dto";
-import { GetOneUserResponseDto } from "@/dto/user-response.dto";
+import {
+  GetAllRecipesResponseDto,
+  GetOneUserResponseDto,
+} from "@/dto/user-response.dto";
 
 import { User } from "@/entities/user";
 
@@ -31,6 +34,7 @@ export class UserController {
     this.userRepo = databaseService.dataSource.getRepository(User);
 
     this.getOneUser = this.getOneUser.bind(this);
+    this.getAllRecipes = this.getAllRecipes.bind(this);
     this.update = this.update.bind(this);
     this.follow = this.follow.bind(this);
     this.unfollow = this.unfollow.bind(this);
@@ -62,6 +66,32 @@ export class UserController {
     res.json({
       message: "User fetched successfully.",
       result: user,
+    });
+  }
+
+  public async getAllRecipes(
+    req: Request,
+    res: Response<GetAllRecipesResponseDto>,
+  ): Promise<void> {
+    const params = GetAllRecipesParamsSchema.parse(req.params);
+
+    const user = await this.userRepo.findOne({
+      where: { id: params.id },
+      relations: { recipes: true },
+    });
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found.",
+        error: "Not Found",
+      });
+
+      return;
+    }
+
+    res.json({
+      message: "Recipes fetched successfully.",
+      result: user.recipes,
     });
   }
 
@@ -175,6 +205,10 @@ export class UserController {
 }
 
 const GetOneUserParamsSchema = z.object({
+  id: z.coerce.number(),
+});
+
+const GetAllRecipesParamsSchema = z.object({
   id: z.coerce.number(),
 });
 
