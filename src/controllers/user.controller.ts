@@ -44,16 +44,11 @@ export class UserController {
 
     const user = await this.userRepo
       .createQueryBuilder("user")
-      .leftJoin("user.recipes", "recipe")
-      .select([
-        "user.id AS id",
-        "user.username AS username",
-        "user.picture AS picture",
-        "CAST(COUNT(recipe.id) AS INT) AS recipesCount",
-      ])
       .where("user.id = :id", { id: params.id })
-      .groupBy("user.id")
-      .getRawOne();
+      .loadRelationCountAndMap("user.recipesCount", "user.recipes")
+      .loadRelationCountAndMap("user.followersCount", "user.followers")
+      .loadRelationCountAndMap("user.followingCount", "user.following")
+      .getOne();
 
     if (!user) {
       res.status(404).json({

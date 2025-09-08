@@ -43,4 +43,8 @@ export class User {
 
   @UpdateDateColumn({ select: false })
   public updatedAt!: Date;
+
+  public recipesCount: number = 0;
+  public followersCount: number = 0;
+  public followingCount: number = 0;
 }
