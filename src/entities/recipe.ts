@@ -67,4 +67,7 @@ export class Recipe {
   public likesCount: number = 0;
 
   public isLikedByCurrentUser: boolean = false;
+
+  @Column()
+  public isChosen: boolean;
 }

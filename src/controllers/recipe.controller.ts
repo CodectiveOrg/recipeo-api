@@ -7,6 +7,7 @@ import { z } from "zod";
 import { findRecipeById } from "@/queries/recipe.query";
 
 import {
+  GetChosenResponseDto,
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
 } from "@/dto/recipe-response.dto";
@@ -26,6 +27,7 @@ export class RecipeController {
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
+    this.getChosen = this.getChosen.bind(this);
   }
 
   public async getOneRecipe(
@@ -68,8 +70,21 @@ export class RecipeController {
       result: featured,
     });
   }
-}
 
+  public async getChosen(
+    _: Request,
+    res: Response<GetChosenResponseDto>,
+  ): Promise<void> {
+    const chosen = await this.recipeRepo.find({
+      where: { isChosen: true },
+    });
+
+    res.json({
+      message: "Chosen recipes fetches successfully.",
+      result: chosen,
+    });
+  }
+}
 const GetOneRecipeParamsSchema = z.object({
   id: z.coerce.number(),
 });
