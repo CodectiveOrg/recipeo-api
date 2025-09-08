@@ -8,6 +8,7 @@ import {
 
 import { Recipe } from "@/entities/recipe";
 import { User } from "@/entities/user";
+
 @Entity()
 @Unique(["user", "recipe"])
 export class Like {
