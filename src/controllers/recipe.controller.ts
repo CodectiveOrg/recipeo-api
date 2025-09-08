@@ -10,7 +10,7 @@ import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
   GetPopularResponseDto,
-  RecipeCreateRecipeResponseDto
+  RecipeCreateRecipeResponseDto,
 } from "@/dto/recipe-response.dto";
 import { ResponseDto } from "@/dto/response.dto";
 
@@ -98,15 +98,18 @@ export class RecipeController {
     });
   }
 
-  public async create(req: Request, res: Response<RecipeCreateRecipeResponseDto>): Promise<void> {
+  public async create(
+    req: Request,
+    res: Response<RecipeCreateRecipeResponseDto>,
+  ): Promise<void> {
     const body = CreateRecipeSchema.parse(req.body);
     const user = await fetchUserFromToken(res, this.userRepo);
 
-    await this.recipeRepo.save({ user, { ...body }});
+    await this.recipeRepo.save({ user, ...body });
 
     res.status(201).json({
       statusCode: 201,
-      message: "Recipe created successfuly."
+      message: "Recipe created successfuly.",
     });
   }
 }
