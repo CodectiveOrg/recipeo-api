@@ -3,12 +3,13 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from "typeorm";
 
 import { Recipe } from "@/entities/recipe";
 import { User } from "@/entities/user";
-
 @Entity()
+@Unique(["user", "recipe"])
 export class Like {
   @PrimaryGeneratedColumn()
   public id!: number;

@@ -5,5 +5,5 @@ import { pick } from "@/utils/type.utils";
 export function mapToTokenPayload<T extends TokenPayloadType>(
   obj: T,
 ): TokenPayloadType {
-  return pick(obj, ["username"]);
+  return pick(obj, ["id", "username"]);
 }
