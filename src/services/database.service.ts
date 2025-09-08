@@ -15,11 +15,7 @@ export class DatabaseService {
     this.dataSource = new DataSource({
       type: "postgres",
       url: process.env.DATABASE_URL!,
-<<<<<<< HEAD
-      entities: [Featured, Ingredient, Recipe, Step, Tag, User, Like],
-=======
       entities: [Featured, Ingredient, Like, Recipe, Step, Tag, User],
->>>>>>> main
       synchronize: true,
       logging: false,
     });
