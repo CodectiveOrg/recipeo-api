@@ -44,11 +44,11 @@ export class Recipe {
   @OneToMany(() => Step, (step) => step.recipe, { cascade: true })
   public steps!: Step[];
 
-  @OneToMany(() => Like, (like) => like.recipe)
-  public likes!: Like[];
-
   @ManyToOne(() => User, (user) => user.recipes)
   public user!: User;
+
+  @OneToMany(() => Like, (like) => like.recipe)
+  public likes!: Like[];
 
   @OneToOne(() => Featured, (featured) => featured.recipe, { cascade: true })
   public featured!: Featured;
