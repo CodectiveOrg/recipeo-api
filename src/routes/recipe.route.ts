@@ -14,6 +14,5 @@ export function generateRecipeRoutes(databaseService: DatabaseService): Router {
   router.get("/recent", controller.getFeatured);
   router.get("/:id", tokenMiddleware, controller.getOneRecipe);
 
-
   return router;
 }
