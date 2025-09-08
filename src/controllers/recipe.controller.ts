@@ -4,6 +4,8 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
+import { findRecipeById } from "@/queries/recipe.query";
+
 import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
@@ -32,15 +34,11 @@ export class RecipeController {
   ): Promise<void> {
     const params = GetOneRecipeParamsSchema.parse(req.params);
 
-    const recipe = await this.recipeRepo.findOne({
-      where: { id: params.id },
-      relations: {
-        tags: true,
-        ingredients: true,
-        steps: true,
-        user: true,
-      },
-    });
+    const recipe = await findRecipeById(
+      this.recipeRepo,
+      params.id,
+      res.locals.user?.id,
+    );
 
     if (!recipe) {
       res.status(404).json({

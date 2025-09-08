@@ -7,8 +7,10 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  VirtualColumn,
 } from "typeorm";
 
+import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
 
 @Entity()
@@ -31,6 +33,9 @@ export class User {
   @OneToMany(() => Recipe, (recipe) => recipe.user)
   public recipes!: Recipe[];
 
+  @OneToMany(() => Like, (like) => like.user)
+  public likes!: Like[];
+
   @ManyToMany(() => User, (user) => user.following)
   @JoinTable()
   public followers!: User[];
@@ -44,7 +49,21 @@ export class User {
   @UpdateDateColumn({ select: false })
   public updatedAt!: Date;
 
+  @VirtualColumn("int", {
+    query: (alias) =>
+      `SELECT COUNT(*) FROM recipe WHERE recipe."userId" = ${alias}.id`,
+  })
   public recipesCount: number = 0;
+
+  @VirtualColumn("int", {
+    query: (alias) =>
+      `SELECT COUNT(*) FROM user_followers_user ufu WHERE ufu."userId_1" = ${alias}.id`,
+  })
   public followersCount: number = 0;
+
+  @VirtualColumn("int", {
+    query: (alias) =>
+      `SELECT COUNT(*) FROM user_followers_user ufu WHERE ufu."userId_2" = ${alias}.id`,
+  })
   public followingCount: number = 0;
 }
