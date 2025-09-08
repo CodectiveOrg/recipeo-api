@@ -70,11 +70,13 @@ export class UserController {
   }
 
   public async getAllRecipes(
-    _: Request,
+    req: Request,
     res: Response<GetAllRecipesResponseDto>,
   ): Promise<void> {
+    const params = GetAllRecipesParamsSchema.parse(req.params);
+
     const user = await this.userRepo.findOne({
-      where: { username: Like(res.locals.user.username) },
+      where: { id: params.id },
       relations: { recipes: true },
     });
 
@@ -203,6 +205,10 @@ export class UserController {
 }
 
 const GetOneUserParamsSchema = z.object({
+  id: z.coerce.number(),
+});
+
+const GetAllRecipesParamsSchema = z.object({
   id: z.coerce.number(),
 });
 
