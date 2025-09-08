@@ -12,7 +12,6 @@ import {
   GetPopularResponseDto,
   RecipeCreateRecipeResponseDto,
 } from "@/dto/recipe-response.dto";
-import { ResponseDto } from "@/dto/response.dto";
 
 import { Featured } from "@/entities/featured";
 import { Recipe } from "@/entities/recipe";
@@ -27,7 +26,7 @@ export class RecipeController {
   private readonly featuredRepo: Repository<Featured>;
   private readonly userRepo: Repository<User>;
 
-  public constructor(private databaseService: DatabaseService) {
+  public constructor(databaseService: DatabaseService) {
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
     this.userRepo = databaseService.dataSource.getRepository(User);
@@ -94,7 +93,7 @@ export class RecipeController {
     });
   }
 
-  public async create(
+  public async createRecipe(
     req: Request,
     res: Response<RecipeCreateRecipeResponseDto>,
   ): Promise<void> {

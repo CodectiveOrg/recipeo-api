@@ -51,9 +51,6 @@ export class Recipe {
   @ManyToOne(() => User, (user) => user.recipes)
   public user!: User;
 
-  @OneToMany(() => Like, (like) => like.recipe)
-  public likes!: Like[];
-
   @OneToOne(() => Featured, (featured) => featured.recipe, { cascade: true })
   public featured!: Featured;
 
