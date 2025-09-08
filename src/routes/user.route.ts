@@ -21,6 +21,10 @@ export function generateUserRoutes(databaseService: DatabaseService): Router {
     pictureMiddleware,
     controller.update,
   );
+  router.get("/follow/:targetUserId", authMiddleware, controller.follow);
+  router.get("/unfollow/:targetUserId", authMiddleware, controller.unfollow);
+  router.get("/:id", controller.getOneUser);
+  router.get("/:id/recipes", controller.getAllRecipes);
 
   return router;
 }

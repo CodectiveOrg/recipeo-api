@@ -7,10 +7,12 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  VirtualColumn,
 } from "typeorm";
 
 import { Featured } from "@/entities/featured";
 import { Ingredient } from "@/entities/ingredient";
+import { Like } from "@/entities/like";
 import { Step } from "@/entities/step";
 import { Tag } from "@/entities/tag";
 import { User } from "@/entities/user";
@@ -46,6 +48,9 @@ export class Recipe {
   @ManyToOne(() => User, (user) => user.recipes)
   public user!: User;
 
+  @OneToMany(() => Like, (like) => like.recipe)
+  public likes!: Like[];
+
   @OneToOne(() => Featured, (featured) => featured.recipe, { cascade: true })
   public featured!: Featured;
 
@@ -54,4 +59,12 @@ export class Recipe {
 
   @UpdateDateColumn()
   public updatedAt!: Date;
+
+  @VirtualColumn("int", {
+    query: (alias) =>
+      `SELECT CAST(COUNT(*) AS INT) FROM "like" WHERE "like"."recipeId" = ${alias}.id`,
+  })
+  public likesCount: number = 0;
+
+  public isLikedByCurrentUser: boolean = false;
 }

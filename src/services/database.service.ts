@@ -2,6 +2,7 @@ import { DataSource } from "typeorm";
 
 import { Featured } from "@/entities/featured";
 import { Ingredient } from "@/entities/ingredient";
+import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
 import { Step } from "@/entities/step";
 import { Tag } from "@/entities/tag";
@@ -14,7 +15,7 @@ export class DatabaseService {
     this.dataSource = new DataSource({
       type: "postgres",
       url: process.env.DATABASE_URL!,
-      entities: [Featured, Ingredient, Recipe, Step, Tag, User],
+      entities: [Featured, Ingredient, Like, Recipe, Step, Tag, User],
       synchronize: true,
       logging: false,
     });
