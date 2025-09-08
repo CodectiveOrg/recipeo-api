@@ -44,10 +44,10 @@ export class RecipeController {
       .addSelect(
         (qb) =>
           qb
-            .select("COUNT(like2.id) > 0", "isLikedByCurrentUser")
-            .from(Like, "like2")
-            .where("like2.recipeId = recipe.id")
-            .andWhere("like2.userId = :currentUserId", {
+            .select("COUNT(like.id) > 0", "isLikedByCurrentUser")
+            .from(Like, "like")
+            .where("like.recipeId = recipe.id")
+            .andWhere("like.userId = :currentUserId", {
               currentUserId: res.locals.user?.id,
             }),
         "isLikedByCurrentUser",
