@@ -3,12 +3,20 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+<<<<<<< HEAD
+=======
+  Unique,
+>>>>>>> main
 } from "typeorm";
 
 import { Recipe } from "@/entities/recipe";
 import { User } from "@/entities/user";
 
 @Entity()
+<<<<<<< HEAD
+=======
+@Unique(["user", "recipe"])
+>>>>>>> main
 export class Like {
   @PrimaryGeneratedColumn()
   public id!: number;
