@@ -60,4 +60,5 @@ export class Recipe {
   public updatedAt!: Date;
 
   public likesCount: number = 0;
+  public isLikedByCurrentUser: boolean = false;
 }

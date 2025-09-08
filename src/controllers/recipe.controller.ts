@@ -4,13 +4,14 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
+import { findRecipeById } from "@/queries/recipe.query";
+
 import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
 } from "@/dto/recipe-response.dto";
 
 import { Featured } from "@/entities/featured";
-import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
 
 import { DatabaseService } from "@/services/database.service";
@@ -33,28 +34,13 @@ export class RecipeController {
   ): Promise<void> {
     const params = GetOneRecipeParamsSchema.parse(req.params);
 
-    const { entities, raw } = await this.recipeRepo
-      .createQueryBuilder("recipe")
-      .where("recipe.id = :id", { id: params.id })
-      .leftJoinAndSelect("recipe.tags", "tags")
-      .leftJoinAndSelect("recipe.ingredients", "ingredients")
-      .leftJoinAndSelect("recipe.steps", "steps")
-      .leftJoinAndSelect("recipe.user", "user")
-      .loadRelationCountAndMap("recipe.likesCount", "recipe.likes")
-      .addSelect(
-        (qb) =>
-          qb
-            .select("COUNT(like.id) > 0", "isLikedByCurrentUser")
-            .from(Like, "like")
-            .where("like.recipeId = recipe.id")
-            .andWhere("like.userId = :currentUserId", {
-              currentUserId: res.locals.user?.id,
-            }),
-        "isLikedByCurrentUser",
-      )
-      .getRawAndEntities();
+    const recipe = await findRecipeById(
+      this.recipeRepo,
+      params.id,
+      res.locals.user?.id,
+    );
 
-    if (!entities[0]) {
+    if (!recipe) {
       res.status(404).json({
         message: "Recipe not found.",
         error: "Not Found",
@@ -62,11 +48,6 @@ export class RecipeController {
 
       return;
     }
-
-    const recipe = {
-      ...entities[0],
-      isLikedByCurrentUser: raw[0].isLikedByCurrentUser,
-    };
 
     res.json({
       message: "Recipe fetched successfully.",
