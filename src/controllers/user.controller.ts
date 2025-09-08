@@ -4,7 +4,6 @@ import { Like, Repository } from "typeorm";
 
 import { z } from "zod";
 
-import { createUserQueryBuilder } from "@/queries/user.query";
 import { EmailSchema } from "@/validation/schemas/email.schema";
 import { PasswordSchema } from "@/validation/schemas/password.schema";
 import { UsernameSchema } from "@/validation/schemas/username.schema";
@@ -47,8 +46,12 @@ export class UserController {
   ): Promise<void> {
     const params = GetOneUserParamsSchema.parse(req.params);
 
-    const user = await createUserQueryBuilder(this.userRepo)
+    const user = await this.userRepo
+      .createQueryBuilder("user")
       .where("user.id = :id", { id: params.id })
+      .loadRelationCountAndMap("user.recipesCount", "user.recipes")
+      .loadRelationCountAndMap("user.followersCount", "user.followers")
+      .loadRelationCountAndMap("user.followingCount", "user.following")
       .getOne();
 
     if (!user) {
