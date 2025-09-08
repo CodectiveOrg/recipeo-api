@@ -13,7 +13,6 @@ export function createRecipeQueryBuilder(
     .leftJoinAndSelect("recipe.ingredients", "ingredients")
     .leftJoinAndSelect("recipe.steps", "steps")
     .leftJoinAndSelect("recipe.user", "user")
-    .loadRelationCountAndMap("recipe.likesCount", "recipe.likes")
     .addSelect(
       (qb) =>
         qb

@@ -7,6 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  VirtualColumn,
 } from "typeorm";
 
 import { Featured } from "@/entities/featured";
@@ -59,6 +60,11 @@ export class Recipe {
   @UpdateDateColumn()
   public updatedAt!: Date;
 
+  @VirtualColumn("int", {
+    query: (alias) =>
+      `SELECT CAST(COUNT(*) AS INT) FROM "like" WHERE "like"."recipeId" = ${alias}.id`,
+  })
   public likesCount: number = 0;
+
   public isLikedByCurrentUser: boolean = false;
 }
