@@ -11,7 +11,7 @@ export function generateRecipeRoutes(databaseService: DatabaseService): Router {
   const controller = new RecipeController(databaseService);
 
   router.get("/featured", controller.getFeatured);
-  router.get("/recent", controller.getFeatured);
+  router.get("/recent", controller.getRecent);
   router.get("/:id", tokenMiddleware, controller.getOneRecipe);
 
   return router;
