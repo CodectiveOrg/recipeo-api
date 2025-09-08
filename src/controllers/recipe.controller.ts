@@ -10,6 +10,7 @@ import {
 } from "@/dto/recipe-response.dto";
 
 import { Featured } from "@/entities/featured";
+import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
 
 import { DatabaseService } from "@/services/database.service";
@@ -32,7 +33,7 @@ export class RecipeController {
   ): Promise<void> {
     const params = GetOneRecipeParamsSchema.parse(req.params);
 
-    const recipe = await this.recipeRepo
+    const { entities, raw } = await this.recipeRepo
       .createQueryBuilder("recipe")
       .where("recipe.id = :id", { id: params.id })
       .leftJoinAndSelect("recipe.tags", "tags")
@@ -40,9 +41,20 @@ export class RecipeController {
       .leftJoinAndSelect("recipe.steps", "steps")
       .leftJoinAndSelect("recipe.user", "user")
       .loadRelationCountAndMap("recipe.likesCount", "recipe.likes")
-      .getOne();
+      .addSelect(
+        (qb) =>
+          qb
+            .select("COUNT(like2.id) > 0", "isLikedByCurrentUser")
+            .from(Like, "like2")
+            .where("like2.recipeId = recipe.id")
+            .andWhere("like2.userId = :currentUserId", {
+              currentUserId: res.locals.user?.id,
+            }),
+        "isLikedByCurrentUser",
+      )
+      .getRawAndEntities();
 
-    if (!recipe) {
+    if (!entities[0]) {
       res.status(404).json({
         message: "Recipe not found.",
         error: "Not Found",
@@ -50,6 +62,11 @@ export class RecipeController {
 
       return;
     }
+
+    const recipe = {
+      ...entities[0],
+      isLikedByCurrentUser: raw[0].isLikedByCurrentUser,
+    };
 
     res.json({
       message: "Recipe fetched successfully.",
