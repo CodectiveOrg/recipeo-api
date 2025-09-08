@@ -30,7 +30,7 @@ export class RecipeController {
     req: Request,
     res: Response<GetOneRecipeResponseDto>,
   ): Promise<void> {
-    const params = GetRecipeParamsSchema.parse(req.params);
+    const params = GetOneRecipeParamsSchema.parse(req.params);
 
     const recipe = await this.recipeRepo.findOne({
       where: { id: params.id },
@@ -72,6 +72,6 @@ export class RecipeController {
   }
 }
 
-const GetRecipeParamsSchema = z.object({
+const GetOneRecipeParamsSchema = z.object({
   id: z.coerce.number(),
 });

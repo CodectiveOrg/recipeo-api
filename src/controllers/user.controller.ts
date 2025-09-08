@@ -9,6 +9,7 @@ import { PasswordSchema } from "@/validation/schemas/password.schema";
 import { UsernameSchema } from "@/validation/schemas/username.schema";
 
 import { ResponseDto } from "@/dto/response.dto";
+import { GetOneUserResponseDto } from "@/dto/user-response.dto";
 
 import { User } from "@/entities/user";
 
@@ -29,7 +30,42 @@ export class UserController {
 
     this.userRepo = databaseService.dataSource.getRepository(User);
 
+    this.getOneUser = this.getOneUser.bind(this);
     this.update = this.update.bind(this);
+  }
+
+  public async getOneUser(
+    req: Request,
+    res: Response<GetOneUserResponseDto>,
+  ): Promise<void> {
+    const params = GetOneRecipeParamsSchema.parse(req.params);
+
+    const user = await this.userRepo
+      .createQueryBuilder("user")
+      .leftJoin("user.recipes", "recipe")
+      .select([
+        "user.id AS id",
+        "user.username AS username",
+        "user.picture AS picture",
+        "CAST(COUNT(recipe.id) AS INT) AS recipesCount",
+      ])
+      .where("user.id = :id", { id: params.id })
+      .groupBy("user.id")
+      .getRawOne();
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found.",
+        error: "Not Found",
+      });
+
+      return;
+    }
+
+    res.json({
+      message: "User fetched successfully.",
+      result: user,
+    });
   }
 
   public async update(req: Request, res: Response<ResponseDto>): Promise<void> {
@@ -56,6 +92,10 @@ export class UserController {
     });
   }
 }
+
+const GetOneRecipeParamsSchema = z.object({
+  id: z.coerce.number(),
+});
 
 const UpdateBodySchema = z.object({
   username: UsernameSchema.optional(),
