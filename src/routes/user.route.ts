@@ -21,6 +21,7 @@ export function generateUserRoutes(databaseService: DatabaseService): Router {
     pictureMiddleware,
     controller.update,
   );
+  router.get("/:id", controller.getOneUser);
 
   return router;
 }
