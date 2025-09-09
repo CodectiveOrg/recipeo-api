@@ -163,7 +163,7 @@ export class RecipeController {
       this.recipeRepo,
       res.locals.user?.id,
       false,
-      (qb) => qb.orderBy("createdAt", "DESC").limit(3),
+      (qb) => qb.orderBy("recipe.createdAt", "DESC").limit(3),
     );
 
     res.json({
