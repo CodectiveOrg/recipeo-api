@@ -120,6 +120,7 @@ export class RecipeController {
     const recipes = await findManyRecipes(
       this.recipeRepo,
       res.locals.user?.id,
+      false,
       (qb) => qb.orderBy('"likesCount"', "DESC").limit(3),
     );
 
@@ -136,6 +137,7 @@ export class RecipeController {
     const recipes = await findManyRecipes(
       this.recipeRepo,
       res.locals.user?.id,
+      false,
       (qb) => qb.orderBy("createdAt", "DESC").limit(3),
     );
 
