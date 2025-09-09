@@ -52,9 +52,12 @@ export class AuthController {
     }
 
     const hashedPassword = await hashPassword(password);
-    await this.userRepo.save({ ...body, password: hashedPassword });
+    const savedUser = await this.userRepo.save({
+      ...body,
+      password: hashedPassword,
+    });
 
-    generateToken(res, mapToTokenPayload(body));
+    generateToken(res, mapToTokenPayload(savedUser));
 
     res.status(201).json({ message: "Signed up successfully." });
   }

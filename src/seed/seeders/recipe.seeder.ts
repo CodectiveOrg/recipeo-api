@@ -148,7 +148,8 @@ export class RecipeSeeder {
       ingredients: recipe.extendedIngredients.map((x, i) => ({
         position: i + 1,
         title: x.name,
-        amount: `${+x.amount.toString()} ${x.unit}`,
+        amount: x.amount,
+        unit: x.unit,
       })),
       steps: steps.map((x) => ({
         position: x.number,
