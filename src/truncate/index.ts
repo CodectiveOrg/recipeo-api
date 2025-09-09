@@ -9,23 +9,24 @@ import { validateEnv } from "@/utils/env.utils";
 async function main(): Promise<void> {
   validateEnv();
 
-  const databaseService = new DatabaseService();
+  console.log("Starting drop and sync...");
+
+  const databaseService = new DatabaseService({
+    synchronize: true,
+    dropSchema: true,
+  });
+
   const isDatabaseInitialized = await databaseService.init();
 
   if (!isDatabaseInitialized) {
     return;
   }
 
-  await dropAndSync(databaseService);
-  await wipeFileStorage();
-}
-
-async function dropAndSync(databaseService: DatabaseService): Promise<void> {
-  console.log("Starting drop and sync...");
-
-  await databaseService.dataSource.synchronize(true);
-
   console.log("Drop and sync finished successfully.");
+
+  await wipeFileStorage();
+
+  await databaseService.dataSource.destroy();
 }
 
 async function wipeFileStorage(): Promise<void> {

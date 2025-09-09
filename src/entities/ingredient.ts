@@ -13,8 +13,11 @@ export class Ingredient {
   @Column("text")
   public title!: string;
 
+  @Column("float")
+  public amount!: number;
+
   @Column("text")
-  public amount!: string;
+  public unit!: string;
 
   @ManyToOne(() => Recipe, (recipe) => recipe.ingredients)
   public recipe!: Recipe;
