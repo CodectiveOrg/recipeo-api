@@ -65,7 +65,7 @@ export async function findPopularRecipes(
     )
     .groupBy("recipe.id")
     .addGroupBy("user.id")
-    .orderBy("likesCount", "DESC")
+    .orderBy('"likesCount"', "DESC")
     .limit(limit);
 
   const { entities, raw } = await qb.getRawAndEntities();
