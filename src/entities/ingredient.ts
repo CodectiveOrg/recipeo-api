@@ -13,7 +13,7 @@ export class Ingredient {
   @Column("text")
   public title!: string;
 
-  @Column("int")
+  @Column("float")
   public amount!: number;
 
   @Column("text")
