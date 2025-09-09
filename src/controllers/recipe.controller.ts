@@ -4,11 +4,7 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
-import {
-  findManyRecipes,
-  findRecipeById,
-  isLikedByCurrentUserSelection,
-} from "@/queries/recipe.query";
+import { findManyRecipes, findRecipeById } from "@/queries/recipe.query";
 
 import {
   GetFeaturedResponseDto,
