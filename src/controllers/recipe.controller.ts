@@ -16,12 +16,12 @@ import { StepSchema } from "@/validation/schemas/step.schema";
 import { TagSchema } from "@/validation/schemas/tag.schema";
 
 import {
+  CreateRecipeResponseDto,
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
   GetPopularResponseDto,
   GetRecentResponseDto,
 } from "@/dto/recipe-response.dto";
-import { ResponseDto } from "@/dto/response.dto";
 
 import { Featured } from "@/entities/featured";
 import { Recipe } from "@/entities/recipe";
@@ -30,6 +30,7 @@ import { User } from "@/entities/user";
 import { DatabaseService } from "@/services/database.service";
 
 import { fetchUserFromToken } from "@/utils/api.utils";
+import { mapToPositionAppended } from "@/utils/mapper.utils";
 
 export class RecipeController {
   private readonly recipeRepo: Repository<Recipe>;
@@ -49,13 +50,26 @@ export class RecipeController {
     this.create = this.create.bind(this);
   }
 
-  public async create(req: Request, res: Response<ResponseDto>): Promise<void> {
+  public async create(
+    req: Request,
+    res: Response<CreateRecipeResponseDto>,
+  ): Promise<void> {
     const body = CreateBodySchema.parse(req.body);
     const user = await fetchUserFromToken(res, this.userRepo);
 
-    await this.recipeRepo.save({ ...body, user });
+    const recipe = {
+      ...body,
+      ingredients: mapToPositionAppended(body.ingredients),
+      steps: mapToPositionAppended(body.steps),
+      user,
+    };
 
-    res.status(201).json({ message: "Recipe created successfully." });
+    const savedRecipe = await this.recipeRepo.save(recipe);
+
+    res.status(201).json({
+      message: "Recipe created successfully.",
+      result: { id: savedRecipe.id },
+    });
   }
 
   public async getOneRecipe(
