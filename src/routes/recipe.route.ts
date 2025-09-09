@@ -15,6 +15,8 @@ export function generateRecipeRoutes(databaseService: DatabaseService): Router {
   router.get("/popular", tokenMiddleware, controller.getPopular);
   router.get("/recent", tokenMiddleware, controller.getRecent);
   router.get("/:id", tokenMiddleware, controller.getOneRecipe);
+  router.post("/:id/like", authMiddleware, controller.like);
+  router.delete("/:id/like", authMiddleware, controller.unlike);
 
   return router;
 }
