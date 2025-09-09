@@ -8,12 +8,15 @@ export type SeedRecipeType = Omit<
   | "tags"
   | "ingredients"
   | "steps"
+  | "likes"
   | "user"
   | "featured"
   | "createdAt"
   | "updatedAt"
+  | "likesCount"
+  | "isLikedByCurrentUser"
 > & {
-  tags: Pick<Tag, "title">[];
-  ingredients: Pick<Ingredient, "position" | "title" | "amount">[];
-  steps: Pick<Step, "position" | "description">[];
+  tags: Omit<Tag, "id" | "recipe">[];
+  ingredients: Omit<Ingredient, "id" | "recipe">[];
+  steps: Omit<Step, "id" | "recipe">[];
 };
