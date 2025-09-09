@@ -11,9 +11,8 @@ import {
   GetOneRecipeResponseDto,
   GetPopularResponseDto,
   GetRecentResponseDto,
-  GetPopularResponseDto,
-  RecipeCreateRecipeResponseDto,
 } from "@/dto/recipe-response.dto";
+import { ResponseDto } from "@/dto/response.dto";
 
 import { Featured } from "@/entities/featured";
 import { Recipe } from "@/entities/recipe";
@@ -114,18 +113,14 @@ export class RecipeController {
     });
   }
 
-  public async createRecipe(
-    req: Request,
-    res: Response<RecipeCreateRecipeResponseDto>,
-  ): Promise<void> {
-    const body = CreateRecipeSchema.parse(req.body);
+  public async create(req: Request, res: Response<ResponseDto>): Promise<void> {
+    const body = CreateBodySchema.parse(req.body);
     const user = await fetchUserFromToken(res, this.userRepo);
 
     await this.recipeRepo.save({ user, ...body });
 
     res.status(201).json({
-      statusCode: 201,
-      message: "Recipe created successfuly.",
+      message: "Recipe created successfully.",
     });
   }
 }
@@ -157,7 +152,7 @@ const TagSchema = z.object({
   recipe: RecipeSchema,
 });
 
-const CreateRecipeSchema = z.object({
+const CreateBodySchema = z.object({
   title: z.string(),
   description: z.string(),
   duration: z.number().min(1),
