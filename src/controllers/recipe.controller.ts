@@ -5,6 +5,15 @@ import { Repository } from "typeorm";
 import { z } from "zod";
 
 import { findManyRecipes, findRecipeById } from "@/queries/recipe.query";
+import { IngredientSchema } from "@/validation/schemas/ingredient.schema";
+import {
+  RecipeDescriptionSchema,
+  RecipeDurationSchema,
+  RecipePictureSchema,
+  RecipeTitleSchema,
+} from "@/validation/schemas/recipe.schema";
+import { StepSchema } from "@/validation/schemas/step.schema";
+import { TagSchema } from "@/validation/schemas/tag.schema";
 
 import {
   GetFeaturedResponseDto,
@@ -38,6 +47,15 @@ export class RecipeController {
     this.getRecent = this.getRecent.bind(this);
     this.getPopular = this.getPopular.bind(this);
     this.create = this.create.bind(this);
+  }
+
+  public async create(req: Request, res: Response<ResponseDto>): Promise<void> {
+    const body = CreateBodySchema.parse(req.body);
+    const user = await fetchUserFromToken(res, this.userRepo);
+
+    await this.recipeRepo.save({ ...body, user });
+
+    res.status(201).json({ message: "Recipe created successfully." });
   }
 
   public async getOneRecipe(
@@ -112,41 +130,18 @@ export class RecipeController {
       result: recipes,
     });
   }
-
-  public async create(req: Request, res: Response<ResponseDto>): Promise<void> {
-    const body = CreateBodySchema.parse(req.body);
-    const user = await fetchUserFromToken(res, this.userRepo);
-
-    await this.recipeRepo.save({ ...body, user });
-
-    res.status(201).json({ message: "Recipe created successfully." });
-  }
 }
 
-const TagSchema = z.object({
-  title: z.string(),
-});
-
-const IngredientSchema = z.object({
-  title: z.string().min(1),
-  amount: z.number(),
-  unit: z.string().nonempty(),
-});
-
-const StepSchema = z.object({
-  description: z.string().min(1),
+const CreateBodySchema = z.object({
+  title: RecipeTitleSchema,
+  description: RecipeDescriptionSchema,
+  duration: RecipeDurationSchema,
+  picture: RecipePictureSchema,
+  tags: z.array(TagSchema),
+  ingredients: z.array(IngredientSchema),
+  steps: z.array(StepSchema),
 });
 
 const GetOneRecipeParamsSchema = z.object({
   id: z.coerce.number(),
-});
-
-const CreateBodySchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  duration: z.number().min(1),
-  picture: z.string().nullable(),
-  tags: z.array(TagSchema),
-  Ingredient: z.array(IngredientSchema),
-  steps: z.array(StepSchema),
 });
