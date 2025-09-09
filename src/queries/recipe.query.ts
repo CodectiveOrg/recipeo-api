@@ -5,7 +5,7 @@ import { Recipe } from "@/entities/recipe";
 
 export function createRecipeQueryBuilder(
   recipeRepo: Repository<Recipe>,
-  currentUserId?: number,
+  currentUserId: number | undefined,
 ): SelectQueryBuilder<Recipe> {
   return recipeRepo
     .createQueryBuilder("recipe")
@@ -31,7 +31,7 @@ export const isLikedByCurrentUserSelection =
 export async function findRecipeById(
   recipeRepo: Repository<Recipe>,
   recipeId: number,
-  currentUserId?: number,
+  currentUserId: number | undefined,
 ): Promise<Recipe | null> {
   const qb = createRecipeQueryBuilder(recipeRepo, currentUserId);
 
@@ -47,4 +47,32 @@ export async function findRecipeById(
     ...entities[0],
     isLikedByCurrentUser: raw[0].isLikedByCurrentUser,
   };
+}
+
+export async function findPopularRecipes(
+  recipeRepo: Repository<Recipe>,
+  currentUserId: number | undefined,
+  limit: number,
+): Promise<Recipe[]> {
+  const qb = recipeRepo
+    .createQueryBuilder("recipe")
+    .leftJoinAndSelect("recipe.user", "user")
+    .leftJoin("recipe.likes", "like")
+    .addSelect("CAST(COUNT(like.id) AS INT)", "likesCount")
+    .addSelect(
+      isLikedByCurrentUserSelection(currentUserId),
+      "isLikedByCurrentUser",
+    )
+    .groupBy("recipe.id")
+    .addGroupBy("user.id")
+    .orderBy("likesCount", "DESC")
+    .limit(limit);
+
+  const { entities, raw } = await qb.getRawAndEntities();
+
+  return entities.map((entity, index) => ({
+    ...entity,
+    likesCount: raw[index].likesCount,
+    isLikedByCurrentUser: raw[index].isLikedByCurrentUser,
+  }));
 }

@@ -4,10 +4,7 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
-import {
-  findRecipeById,
-  isLikedByCurrentUserSelection,
-} from "@/queries/recipe.query";
+import { findPopularRecipes, findRecipeById } from "@/queries/recipe.query";
 
 import {
   GetFeaturedResponseDto,
@@ -78,31 +75,11 @@ export class RecipeController {
     _: Request,
     res: Response<GetPopularResponseDto>,
   ): Promise<void> {
-    const recipes = await this.recipeRepo
-      .createQueryBuilder("recipe")
-      .select([
-        "recipe.id AS id",
-        "recipe.title AS title",
-        "recipe.duration AS duration",
-        "recipe.picture AS picture",
-        `CAST(COUNT(like.id) AS INT) AS "likesCount"`,
-        `json_build_object(
-          'id', "user"."id",
-          'username', "user"."username",
-          'picture', "user"."picture"
-        ) AS "user"`,
-      ])
-      .addSelect(
-        isLikedByCurrentUserSelection(res.locals.user?.id),
-        "isLikedByCurrentUser",
-      )
-      .leftJoin("recipe.user", "user")
-      .leftJoin("recipe.likes", "like")
-      .groupBy("recipe.id")
-      .addGroupBy("user.id")
-      .orderBy(`"likesCount"`, "DESC")
-      .limit(10)
-      .getRawMany();
+    const recipes = await findPopularRecipes(
+      this.recipeRepo,
+      res.locals.user?.id,
+      10,
+    );
 
     res.json({
       message: "Popular recipes fetched successfully.",
