@@ -117,39 +117,28 @@ export class RecipeController {
     const body = CreateBodySchema.parse(req.body);
     const user = await fetchUserFromToken(res, this.userRepo);
 
-    await this.recipeRepo.save({ user, ...body });
+    await this.recipeRepo.save({ ...body, user });
 
-    res.status(201).json({
-      message: "Recipe created successfully.",
-    });
+    res.status(201).json({ message: "Recipe created successfully." });
   }
 }
 
-const GetOneRecipeParamsSchema = z.object({
-  id: z.coerce.number(),
-});
-
-const RecipeSchema = z.object({});
-
-const StepSchema = z.object({
-  id: z.coerce.number(),
-  position: z.number().nonnegative(),
-  description: z.string().min(1),
-  recipe: RecipeSchema,
+const TagSchema = z.object({
+  title: z.string(),
 });
 
 const IngredientSchema = z.object({
-  id: z.coerce.number(),
-  position: z.number().nonnegative(),
   title: z.string().min(1),
-  amount: z.string().nonempty(),
-  recipe: RecipeSchema,
+  amount: z.number(),
+  unit: z.string().nonempty(),
 });
 
-const TagSchema = z.object({
+const StepSchema = z.object({
+  description: z.string().min(1),
+});
+
+const GetOneRecipeParamsSchema = z.object({
   id: z.coerce.number(),
-  title: z.string(),
-  recipe: RecipeSchema,
 });
 
 const CreateBodySchema = z.object({
@@ -157,7 +146,7 @@ const CreateBodySchema = z.object({
   description: z.string(),
   duration: z.number().min(1),
   picture: z.string().nullable(),
-  tags: TagSchema,
-  Ingredient: IngredientSchema,
-  steps: StepSchema,
+  tags: z.array(TagSchema),
+  Ingredient: z.array(IngredientSchema),
+  steps: z.array(StepSchema),
 });
