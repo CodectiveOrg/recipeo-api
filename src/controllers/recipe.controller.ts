@@ -22,8 +22,10 @@ import {
   GetPopularResponseDto,
   GetRecentResponseDto,
 } from "@/dto/recipe-response.dto";
+import { ResponseDto } from "@/dto/response.dto";
 
 import { Featured } from "@/entities/featured";
+import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
 import { User } from "@/entities/user";
 
@@ -31,16 +33,17 @@ import { DatabaseService } from "@/services/database.service";
 
 import { fetchUserFromToken } from "@/utils/api.utils";
 import { mapToPositionAppended } from "@/utils/mapper.utils";
-import { ResponseDto } from "@/dto/response.dto";
 
 export class RecipeController {
-  private readonly recipeRepo: Repository<Recipe>;
   private readonly featuredRepo: Repository<Featured>;
+  private readonly likeRepo: Repository<Like>;
+  private readonly recipeRepo: Repository<Recipe>;
   private readonly userRepo: Repository<User>;
 
   public constructor(databaseService: DatabaseService) {
-    this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
+    this.likeRepo = databaseService.dataSource.getRepository(Like);
+    this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.userRepo = databaseService.dataSource.getRepository(User);
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
@@ -49,7 +52,8 @@ export class RecipeController {
     this.getRecent = this.getRecent.bind(this);
     this.getPopular = this.getPopular.bind(this);
     this.create = this.create.bind(this);
-    this.likeAndUnlike = this.likeAndUnlike.bind(this);
+    this.like = this.like.bind(this);
+    this.unlike = this.unlike.bind(this);
   }
 
   public async create(
@@ -78,7 +82,7 @@ export class RecipeController {
     req: Request,
     res: Response<GetOneRecipeResponseDto>,
   ): Promise<void> {
-    const params = GetOneRecipeParamsSchema.parse(req.params);
+    const params = IdParamsSchema.parse(req.params);
 
     const recipe = await findRecipeById(
       this.recipeRepo,
@@ -149,34 +153,48 @@ export class RecipeController {
     });
   }
 
+  public async like(req: Request, res: Response<ResponseDto>): Promise<void> {
+    const params = IdParamsSchema.parse(req.params);
+    const user = await fetchUserFromToken(res, this.userRepo);
 
-  public async likeAndUnlike(
-    req: Request,
-    res: Response<ResponseDto>,
-  ): Promise<void> {
-    const { id } = likeAndUnlikeSchema.parse(req.body);
+    const like = { user, recipe: { id: params.id } };
 
-    const recipe = await findRecipeById(
-      this.recipeRepo,
-      id,
-      res.locals.user?.id,
-    );
+    const foundLike = await this.likeRepo.findOne({ where: like });
 
-    if (!recipe) {
-      res.status(404).json({
-        message: "Recipe not found.",
-        error: "Not Found",
+    if (foundLike) {
+      res.status(400).json({
+        message: "You already liked this recipe.",
+        error: "Bad Request",
       });
 
       return;
     }
 
-    const { isLikedByCurrentUser } = recipe;
-    recipe.isLikedByCurrentUser = !isLikedByCurrentUser;
+    await this.likeRepo.save(like);
 
-    await this.recipeRepo.save(recipe);
+    res.json({ message: "Liked recipe successfully." });
+  }
 
-    res.json({ message: "Recipe updated successfully." });
+  public async unlike(req: Request, res: Response<ResponseDto>): Promise<void> {
+    const params = IdParamsSchema.parse(req.params);
+    const user = await fetchUserFromToken(res, this.userRepo);
+
+    const like = { user, recipe: { id: params.id } };
+
+    const foundLike = await this.likeRepo.findOne({ where: like });
+
+    if (!foundLike) {
+      res.status(400).json({
+        message: "You have not liked this recipe yet.",
+        error: "Bad Request",
+      });
+
+      return;
+    }
+
+    await this.likeRepo.delete(like);
+
+    res.json({ message: "Unliked recipe successfully." });
   }
 }
 
@@ -190,10 +208,6 @@ const CreateBodySchema = z.object({
   steps: z.array(StepSchema),
 });
 
-const GetOneRecipeParamsSchema = z.object({
-  id: z.coerce.number(),
-});
-
-const likeAndUnlikeSchema = z.object({
+const IdParamsSchema = z.object({
   id: z.coerce.number(),
 });
