@@ -41,10 +41,7 @@ export async function findManyRecipes(
 
   qb = callback(qb);
 
-  const { entities, raw } = await qb
-    .orderBy('"likesCount"', "DESC")
-    .limit(3)
-    .getRawAndEntities();
+  const { entities, raw } = await qb.getRawAndEntities();
 
   return entities.map((entity, index) => ({
     ...entity,
