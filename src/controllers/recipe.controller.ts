@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { z } from "zod";
 
 import {
+  findManyRecipes,
   findRecipeById,
   isLikedByCurrentUserSelection,
 } from "@/queries/recipe.query";
@@ -80,26 +81,11 @@ export class RecipeController {
     _: Request,
     res: Response<GetPopularResponseDto>,
   ): Promise<void> {
-    const { entities, raw } = await this.recipeRepo
-      .createQueryBuilder("recipe")
-      .leftJoinAndSelect("recipe.user", "user")
-      .leftJoin("recipe.likes", "like")
-      .addSelect("CAST(COUNT(like.id) AS INT)", "likesCount")
-      .addSelect(
-        isLikedByCurrentUserSelection(res.locals.user?.id),
-        "isLikedByCurrentUser",
-      )
-      .groupBy("recipe.id")
-      .addGroupBy("user.id")
-      .orderBy('"likesCount"', "DESC")
-      .limit(3)
-      .getRawAndEntities();
-
-    const recipes = entities.map((entity, index) => ({
-      ...entity,
-      likesCount: raw[index].likesCount,
-      isLikedByCurrentUser: raw[index].isLikedByCurrentUser,
-    }));
+    const recipes = await findManyRecipes(
+      this.recipeRepo,
+      res.locals.user?.id,
+      (qb) => qb.orderBy('"likesCount"', "DESC").limit(3),
+    );
 
     res.json({
       message: "Popular recipes fetched successfully.",
@@ -111,11 +97,11 @@ export class RecipeController {
     _: Request,
     res: Response<GetRecentResponseDto>,
   ): Promise<void> {
-    const recipes = await this.recipeRepo.find({
-      relations: { user: true },
-      order: { createdAt: "DESC" },
-      take: 10,
-    });
+    const recipes = await findManyRecipes(
+      this.recipeRepo,
+      res.locals.user?.id,
+      (qb) => qb.orderBy("createdAt", "DESC").limit(3),
+    );
 
     res.json({
       message: "Recent recipes fetched successfully.",

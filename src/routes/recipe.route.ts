@@ -12,7 +12,7 @@ export function generateRecipeRoutes(databaseService: DatabaseService): Router {
 
   router.get("/featured", controller.getFeatured);
   router.get("/popular", tokenMiddleware, controller.getPopular);
-  router.get("/recent", controller.getRecent);
+  router.get("/recent", tokenMiddleware, controller.getRecent);
   router.get("/:id", tokenMiddleware, controller.getOneRecipe);
 
   return router;
