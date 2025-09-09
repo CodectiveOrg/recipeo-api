@@ -4,7 +4,10 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
-import { findPopularRecipes, findRecipeById } from "@/queries/recipe.query";
+import {
+  findRecipeById,
+  isLikedByCurrentUserSelection,
+} from "@/queries/recipe.query";
 
 import {
   GetFeaturedResponseDto,
@@ -21,7 +24,7 @@ export class RecipeController {
   private readonly recipeRepo: Repository<Recipe>;
   private readonly featuredRepo: Repository<Featured>;
 
-  public constructor(private databaseService: DatabaseService) {
+  public constructor(databaseService: DatabaseService) {
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
 
@@ -75,11 +78,26 @@ export class RecipeController {
     _: Request,
     res: Response<GetPopularResponseDto>,
   ): Promise<void> {
-    const recipes = await findPopularRecipes(
-      this.recipeRepo,
-      res.locals.user?.id,
-      10,
-    );
+    const { entities, raw } = await this.recipeRepo
+      .createQueryBuilder("recipe")
+      .leftJoinAndSelect("recipe.user", "user")
+      .leftJoin("recipe.likes", "like")
+      .addSelect("CAST(COUNT(like.id) AS INT)", "likesCount")
+      .addSelect(
+        isLikedByCurrentUserSelection(res.locals.user?.id),
+        "isLikedByCurrentUser",
+      )
+      .groupBy("recipe.id")
+      .addGroupBy("user.id")
+      .orderBy('"likesCount"', "DESC")
+      .limit(3)
+      .getRawAndEntities();
+
+    const recipes = entities.map((entity, index) => ({
+      ...entity,
+      likesCount: raw[index].likesCount,
+      isLikedByCurrentUser: raw[index].isLikedByCurrentUser,
+    }));
 
     res.json({
       message: "Popular recipes fetched successfully.",

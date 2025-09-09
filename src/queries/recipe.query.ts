@@ -48,31 +48,3 @@ export async function findRecipeById(
     isLikedByCurrentUser: raw[0].isLikedByCurrentUser,
   };
 }
-
-export async function findPopularRecipes(
-  recipeRepo: Repository<Recipe>,
-  currentUserId: number | undefined,
-  limit: number,
-): Promise<Recipe[]> {
-  const qb = recipeRepo
-    .createQueryBuilder("recipe")
-    .leftJoinAndSelect("recipe.user", "user")
-    .leftJoin("recipe.likes", "like")
-    .addSelect("CAST(COUNT(like.id) AS INT)", "likesCount")
-    .addSelect(
-      isLikedByCurrentUserSelection(currentUserId),
-      "isLikedByCurrentUser",
-    )
-    .groupBy("recipe.id")
-    .addGroupBy("user.id")
-    .orderBy('"likesCount"', "DESC")
-    .limit(limit);
-
-  const { entities, raw } = await qb.getRawAndEntities();
-
-  return entities.map((entity, index) => ({
-    ...entity,
-    likesCount: raw[index].likesCount,
-    isLikedByCurrentUser: raw[index].isLikedByCurrentUser,
-  }));
-}
