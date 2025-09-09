@@ -142,13 +142,16 @@ export class RecipeController {
     _: Request,
     res: Response<GetChosenResponseDto>,
   ): Promise<void> {
-    const chosen = await this.recipeRepo.find({
-      where: { isChosen: true },
-    });
+    const recipes = await findManyRecipes(
+      this.recipeRepo,
+      res.locals.user?.id,
+      false,
+      (qb) => qb.where("recipe.isChosen = TRUE").limit(3),
+    );
 
     res.json({
-      message: "Chosen recipes fetches successfully.",
-      result: chosen,
+      message: "Chosen recipes fetched successfully.",
+      result: recipes,
     });
   }
 
