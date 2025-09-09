@@ -17,6 +17,7 @@ import { TagSchema } from "@/validation/schemas/tag.schema";
 
 import {
   CreateRecipeResponseDto,
+  GetChosenResponseDto,
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
   GetPopularResponseDto,
@@ -51,6 +52,7 @@ export class RecipeController {
     this.getPopular = this.getPopular.bind(this);
     this.getRecent = this.getRecent.bind(this);
     this.getPopular = this.getPopular.bind(this);
+    this.getChosen = this.getChosen.bind(this);
     this.create = this.create.bind(this);
     this.like = this.like.bind(this);
     this.unlike = this.unlike.bind(this);
@@ -136,6 +138,23 @@ export class RecipeController {
     });
   }
 
+  public async getChosen(
+    _: Request,
+    res: Response<GetChosenResponseDto>,
+  ): Promise<void> {
+    const recipes = await findManyRecipes(
+      this.recipeRepo,
+      res.locals.user?.id,
+      false,
+      (qb) => qb.where("recipe.isChosen = TRUE").limit(3),
+    );
+
+    res.json({
+      message: "Chosen recipes fetched successfully.",
+      result: recipes,
+    });
+  }
+
   public async getRecent(
     _: Request,
     res: Response<GetRecentResponseDto>,
@@ -144,7 +163,7 @@ export class RecipeController {
       this.recipeRepo,
       res.locals.user?.id,
       false,
-      (qb) => qb.orderBy("createdAt", "DESC").limit(3),
+      (qb) => qb.orderBy("recipe.createdAt", "DESC").limit(3),
     );
 
     res.json({

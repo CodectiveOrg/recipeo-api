@@ -33,6 +33,9 @@ export class Recipe {
   @Column("text", { nullable: true })
   public picture!: string | null;
 
+  @Column("boolean", { default: false })
+  public isChosen!: boolean;
+
   @OneToMany(() => Tag, (tag) => tag.recipe, { cascade: true })
   public tags!: Tag[];
 
