@@ -1,4 +1,5 @@
 import { DataSource } from "typeorm";
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
 import { Featured } from "@/entities/featured";
 import { Ingredient } from "@/entities/ingredient";
@@ -11,13 +12,14 @@ import { User } from "@/entities/user";
 export class DatabaseService {
   public dataSource: DataSource;
 
-  public constructor() {
+  public constructor(options: Partial<PostgresConnectionOptions> = {}) {
     this.dataSource = new DataSource({
       type: "postgres",
       url: process.env.DATABASE_URL!,
       entities: [Featured, Ingredient, Like, Recipe, Step, Tag, User],
       synchronize: true,
       logging: false,
+      ...options,
     });
   }
 

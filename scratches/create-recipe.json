@@ -1,0 +1,51 @@
+{
+  "title": "Barbecued Pulled Beef Sandwiches",
+  "description": "Barbecued Pulled Beef Sandwiches requires about <b>45 minutes</b> from start to finish",
+  "duration": 45,
+  "picture": "20250909072232-edb16a8b-dae7-4306-b3ff-d2a999b1a3ae.jpg",
+  "tags": [
+    { "title": "lunch" },
+    { "title": "main course" },
+    { "title": "main dish" },
+    { "title": "dinner" }
+  ],
+  "ingredients": [
+    { "title": "bacon", "amount": 6, "unit": "strips" },
+    { "title": "beef chuck", "amount": 2, "unit": "pounds" },
+    { "title": "olive oil", "amount": 2, "unit": "tablespoons" },
+    { "title": "brown sugar", "amount": 0.5, "unit": "cup" },
+    { "title": "salt and pepper", "amount": 6, "unit": "servings" },
+    { "title": "onion", "amount": 1, "unit": "" },
+    { "title": "to 3 of barbecue sauce", "amount": 2, "unit": "cups" },
+    { "title": "hawaiian rolls", "amount": 6, "unit": "servings" }
+  ],
+  "steps": [
+    {
+      "description": "Preheat oven to 350 degrees. Line a rimmed cookie sheet with parchment paper."
+    },
+    { "description": "Lay bacon strips over parchment." },
+    { "description": "Bake pan for 10-15 minutes, or until bacon is crispy." },
+    {
+      "description": "Remove from oven and let cool on pan. Reduce oven heat to 250 degrees and leave oven door open while you dress the beef."
+    },
+    {
+      "description": "Drizzle olive oil over the bottom of a medium roasting pan."
+    },
+    {
+      "description": "Place meat in roasting pan, and coast with sugar (you want kind of a thin crust). Season generously with salt and pepper and cover with onions. Tent pan with aluminum foil."
+    },
+    {
+      "description": "Roast meat for 3 to 4-1/2 hours, or until beef is fork tender and can be pulled apart easily."
+    },
+    {
+      "description": "Remove from oven, and set aside to cool slightly. Meanwhile, chop bacon into small-dice bits."
+    },
+    {
+      "description": "When meat can be handled, shred apart and add barbecue sauce and bacon."
+    },
+    {
+      "description": "Mix until evenly coated and bacon is distributed. Season with salt and pepper to taste, and add more barbecue sauce if you will."
+    },
+    { "description": "Serve hot on toasted buns or Hawaiian rolls." }
+  ]
+}
