@@ -4,11 +4,13 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
-import { findRecipeById } from "@/queries/recipe.query";
+import { findManyRecipes, findRecipeById } from "@/queries/recipe.query";
 
 import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
+  GetPopularResponseDto,
+  GetRecentResponseDto,
   GetPopularResponseDto,
   RecipeCreateRecipeResponseDto,
 } from "@/dto/recipe-response.dto";
@@ -33,6 +35,8 @@ export class RecipeController {
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
+    this.getPopular = this.getPopular.bind(this);
+    this.getRecent = this.getRecent.bind(this);
     this.getPopular = this.getPopular.bind(this);
     this.create = this.create.bind(this);
   }
@@ -82,13 +86,30 @@ export class RecipeController {
     _: Request,
     res: Response<GetPopularResponseDto>,
   ): Promise<void> {
-    const recipes = await this.recipeRepo
-      .createQueryBuilder("recipe")
-      .orderBy("COUNT(likes)", "DESC")
-      .getMany();
+    const recipes = await findManyRecipes(
+      this.recipeRepo,
+      res.locals.user?.id,
+      (qb) => qb.orderBy('"likesCount"', "DESC").limit(3),
+    );
 
     res.json({
       message: "Popular recipes fetched successfully.",
+      result: recipes,
+    });
+  }
+
+  public async getRecent(
+    _: Request,
+    res: Response<GetRecentResponseDto>,
+  ): Promise<void> {
+    const recipes = await findManyRecipes(
+      this.recipeRepo,
+      res.locals.user?.id,
+      (qb) => qb.orderBy("createdAt", "DESC").limit(3),
+    );
+
+    res.json({
+      message: "Recent recipes fetched successfully.",
       result: recipes,
     });
   }
