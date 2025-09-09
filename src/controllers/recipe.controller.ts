@@ -13,7 +13,7 @@ import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
   GetPopularResponseDto,
-  GetRecipesResponseDto,
+  GetRecentResponseDto,
 } from "@/dto/recipe-response.dto";
 
 import { Featured } from "@/entities/featured";
@@ -109,23 +109,17 @@ export class RecipeController {
 
   public async getRecent(
     _: Request,
-    res: Response<GetRecipesResponseDto>,
+    res: Response<GetRecentResponseDto>,
   ): Promise<void> {
-    const recentRecipes = await this.recipeRepo.find({
-      relations: {
-        ingredients: true,
-        tags: true,
-        user: true,
-      },
-      order: {
-        createdAt: "DESC",
-      },
+    const recipes = await this.recipeRepo.find({
+      relations: { user: true },
+      order: { createdAt: "DESC" },
       take: 10,
     });
 
     res.json({
       message: "Recent recipes fetched successfully.",
-      result: recentRecipes,
+      result: recipes,
     });
   }
 }
