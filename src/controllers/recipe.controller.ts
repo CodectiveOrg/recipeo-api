@@ -4,11 +4,15 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
-import { findRecipeById } from "@/queries/recipe.query";
+import {
+  findRecipeById,
+  isLikedByCurrentUserSelection,
+} from "@/queries/recipe.query";
 
 import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
+  GetPopularResponseDto,
   GetRecipesResponseDto,
 } from "@/dto/recipe-response.dto";
 
@@ -27,6 +31,7 @@ export class RecipeController {
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
+    this.getPopular = this.getPopular.bind(this);
     this.getRecent = this.getRecent.bind(this);
   }
 
@@ -68,6 +73,37 @@ export class RecipeController {
     res.json({
       message: "Recipe fetched successfully.",
       result: featured,
+    });
+  }
+
+  public async getPopular(
+    _: Request,
+    res: Response<GetPopularResponseDto>,
+  ): Promise<void> {
+    const { entities, raw } = await this.recipeRepo
+      .createQueryBuilder("recipe")
+      .leftJoinAndSelect("recipe.user", "user")
+      .leftJoin("recipe.likes", "like")
+      .addSelect("CAST(COUNT(like.id) AS INT)", "likesCount")
+      .addSelect(
+        isLikedByCurrentUserSelection(res.locals.user?.id),
+        "isLikedByCurrentUser",
+      )
+      .groupBy("recipe.id")
+      .addGroupBy("user.id")
+      .orderBy('"likesCount"', "DESC")
+      .limit(3)
+      .getRawAndEntities();
+
+    const recipes = entities.map((entity, index) => ({
+      ...entity,
+      likesCount: raw[index].likesCount,
+      isLikedByCurrentUser: raw[index].isLikedByCurrentUser,
+    }));
+
+    res.json({
+      message: "Popular recipes fetched successfully.",
+      result: recipes,
     });
   }
 
