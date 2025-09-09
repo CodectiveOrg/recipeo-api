@@ -14,15 +14,19 @@ export function createRecipeQueryBuilder(
     .leftJoinAndSelect("recipe.steps", "steps")
     .leftJoinAndSelect("recipe.user", "user")
     .addSelect(
-      (qb) =>
-        qb
-          .select("COUNT(like.id) > 0", "isLikedByCurrentUser")
-          .from(Like, "like")
-          .where("like.recipeId = recipe.id")
-          .andWhere("like.userId = :currentUserId", { currentUserId }),
+      isLikedByCurrentUserSelection(currentUserId),
       "isLikedByCurrentUser",
     );
 }
+
+export const isLikedByCurrentUserSelection =
+  (currentUserId?: number) =>
+  (qb: SelectQueryBuilder<Like>): SelectQueryBuilder<Like> =>
+    qb
+      .select("CAST(COUNT(like.id) AS INT) > 0", "isLikedByCurrentUser")
+      .from(Like, "like")
+      .where("like.recipeId = recipe.id")
+      .andWhere("like.userId = :currentUserId", { currentUserId });
 
 export async function findRecipeById(
   recipeRepo: Repository<Recipe>,

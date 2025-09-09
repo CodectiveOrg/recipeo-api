@@ -45,9 +45,6 @@ export class Recipe {
   @OneToMany(() => Step, (step) => step.recipe, { cascade: true })
   public steps!: Step[];
 
-  @OneToMany(() => Like, (like) => like.recipe)
-  public likes!: Like[];
-
   @ManyToOne(() => User, (user) => user.recipes)
   public user!: User;
 
@@ -63,11 +60,6 @@ export class Recipe {
   @UpdateDateColumn()
   public updatedAt!: Date;
 
-  @VirtualColumn("int", {
-    query: (alias) =>
-      `SELECT CAST(COUNT(*) AS INT) FROM "like" WHERE "like"."recipeId" = ${alias}.id`,
-  })
-  public likesCount: number = 0;
-
-  public isLikedByCurrentUser: boolean = false;
+  public likesCount!: number;
+  public isLikedByCurrentUser!: boolean;
 }
