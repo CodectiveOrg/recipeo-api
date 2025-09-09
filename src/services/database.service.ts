@@ -11,12 +11,12 @@ import { User } from "@/entities/user";
 export class DatabaseService {
   public dataSource: DataSource;
 
-  public constructor() {
+  public constructor(synchronize = true) {
     this.dataSource = new DataSource({
       type: "postgres",
       url: process.env.DATABASE_URL!,
       entities: [Featured, Ingredient, Like, Recipe, Step, Tag, User],
-      synchronize: true,
+      synchronize: synchronize,
       logging: false,
     });
   }

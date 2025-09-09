@@ -9,7 +9,7 @@ import { validateEnv } from "@/utils/env.utils";
 async function main(): Promise<void> {
   validateEnv();
 
-  const databaseService = new DatabaseService();
+  const databaseService = new DatabaseService(false);
   const isDatabaseInitialized = await databaseService.init();
 
   if (!isDatabaseInitialized) {
@@ -18,6 +18,8 @@ async function main(): Promise<void> {
 
   await dropAndSync(databaseService);
   await wipeFileStorage();
+
+  await databaseService.dataSource.destroy();
 }
 
 async function dropAndSync(databaseService: DatabaseService): Promise<void> {
