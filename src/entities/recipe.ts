@@ -7,7 +7,6 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  VirtualColumn,
 } from "typeorm";
 
 import { Featured } from "@/entities/featured";
