@@ -1,53 +1,44 @@
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 
-import { Like, Repository } from "typeorm";
-
-import { PublicHelloResponseDto } from "@/dto/public-response.dto";
+import { Repository } from "typeorm";
 
 import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
-
-import { fetchUserFromToken } from "@/utils/api.utils";
+import { FileService } from "@/services/file.service";
 
 export class PublicController {
+  private readonly fileService: FileService;
+
   private readonly userRepo: Repository<User>;
 
   public constructor(databaseService: DatabaseService) {
+    this.fileService = new FileService("user");
+
     this.userRepo = databaseService.dataSource.getRepository(User);
-
-    this.helloToken = this.helloToken.bind(this);
-    this.helloParams = this.helloParams.bind(this);
   }
 
-  public async helloToken(
-    _: Request,
-    res: Response<PublicHelloResponseDto>,
-  ): Promise<void> {
-    const user = await fetchUserFromToken(res, this.userRepo);
+  public getPicture(folder: string): RequestHandler {
+    async function getPicture(req: Request, res: Response): Promise<void> {
+      const { filename } = req.params;
 
-    res.json({ message: `Hello, ${user.username}!` });
-  }
+      const file = await FileService.load(folder, filename);
 
-  public async helloParams(
-    req: Request,
-    res: Response<PublicHelloResponseDto>,
-  ): Promise<void> {
-    const { username } = req.params;
+      console.log(filename);
+      console.log(file);
 
-    const user = await this.userRepo.findOne({
-      where: { username: Like(username) },
-    });
+      if (!file) {
+        res.status(404).json({
+          message: "Picture not found.",
+          error: "Not Found",
+        });
 
-    if (!user) {
-      res.status(404).json({
-        message: "User not found.",
-        error: "Not Found",
-      });
+        return;
+      }
 
-      return;
+      res.sendFile(file);
     }
 
-    res.json({ message: `Hello, ${user.username}!` });
+    return getPicture.bind(this);
   }
 }
