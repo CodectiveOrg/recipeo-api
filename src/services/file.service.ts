@@ -10,7 +10,11 @@ export class FileService {
   }
 
   private get folderPath(): string {
-    return path.join(process.env.FILE_STORAGE_PATH!, this.folder);
+    return FileService.generateFolderPath(this.folder);
+  }
+
+  private static generateFolderPath(folder: string): string {
+    return path.join(process.env.FILE_STORAGE_PATH!, folder);
   }
 
   public async save(
@@ -31,8 +35,12 @@ export class FileService {
     return filenameWithExtension;
   }
 
-  public async load(filename: string): Promise<string | null> {
-    const filePath = path.join(this.folderPath, filename);
+  public static async load(
+    folder: string,
+    filename: string,
+  ): Promise<string | null> {
+    const folderPath = FileService.generateFolderPath(folder);
+    const filePath = path.join(folderPath, filename);
 
     try {
       await fs.access(filePath);
