@@ -2,6 +2,7 @@ import { ResponseDto } from "@/dto/response.dto";
 
 import { Featured } from "@/entities/featured";
 import { Recipe } from "@/entities/recipe";
+import { Tag } from "@/entities/tag";
 
 export type CreateRecipeResponseDto = ResponseDto<{ id: number }>;
 export type GetOneRecipeResponseDto = ResponseDto<Recipe>;
@@ -9,3 +10,4 @@ export type GetFeaturedResponseDto = ResponseDto<Featured[]>;
 export type GetPopularResponseDto = ResponseDto<Recipe[]>;
 export type GetChosenResponseDto = ResponseDto<Recipe[]>;
 export type GetRecentResponseDto = ResponseDto<Recipe[]>;
+export type GetTagsResponseDto = ResponseDto<Tag[]>;

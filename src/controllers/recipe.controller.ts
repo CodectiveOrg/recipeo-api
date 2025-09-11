@@ -22,12 +22,14 @@ import {
   GetOneRecipeResponseDto,
   GetPopularResponseDto,
   GetRecentResponseDto,
+  GetTagsResponseDto,
 } from "@/dto/recipe-response.dto";
 import { ResponseDto } from "@/dto/response.dto";
 
 import { Featured } from "@/entities/featured";
 import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
+import { Tag } from "@/entities/tag";
 import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
@@ -40,12 +42,14 @@ export class RecipeController {
   private readonly likeRepo: Repository<Like>;
   private readonly recipeRepo: Repository<Recipe>;
   private readonly userRepo: Repository<User>;
+  private readonly tagRepo: Repository<Tag>;
 
   public constructor(databaseService: DatabaseService) {
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
     this.likeRepo = databaseService.dataSource.getRepository(Like);
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.userRepo = databaseService.dataSource.getRepository(User);
+    this.tagRepo = databaseService.dataSource.getRepository(Tag);
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
@@ -53,6 +57,7 @@ export class RecipeController {
     this.getRecent = this.getRecent.bind(this);
     this.getPopular = this.getPopular.bind(this);
     this.getChosen = this.getChosen.bind(this);
+    this.getTags = this.getTags.bind(this);
     this.create = this.create.bind(this);
     this.like = this.like.bind(this);
     this.unlike = this.unlike.bind(this);
@@ -169,6 +174,18 @@ export class RecipeController {
     res.json({
       message: "Recent recipes fetched successfully.",
       result: recipes,
+    });
+  }
+
+  public async getTags(
+    _: Request,
+    res: Response<GetTagsResponseDto>,
+  ): Promise<void> {
+    const tags = await this.tagRepo.find({});
+
+    res.json({
+      message: "Tags fetched successfully.",
+      result: tags,
     });
   }
 
