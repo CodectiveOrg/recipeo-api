@@ -5,9 +5,12 @@ import { Recipe } from "@/entities/recipe";
 
 import { DatabaseService } from "@/services/database.service";
 
+import { Paginated } from "@/types/paginated.type";
 import { Qb } from "@/types/query-builder.type";
 
 export class RecipeService {
+  private readonly PAGE_SIZE: number = 3;
+
   private readonly recipeRepo: Repository<Recipe>;
 
   public constructor(databaseService: DatabaseService) {
@@ -15,15 +18,29 @@ export class RecipeService {
   }
 
   public async findMany(
+    page: number | undefined,
     currentUserId: number | undefined,
     callback: (qb: Qb) => Qb,
-  ): Promise<Recipe[]> {
+  ): Promise<Paginated<Recipe>> {
     let qb = this.createQueryBuilder(currentUserId);
 
     qb = callback(qb);
 
+    page = Math.max(1, page ?? 1);
+
+    const totalItems = await qb.getCount();
+    const lastPage = Math.ceil(totalItems / this.PAGE_SIZE);
+
+    qb = qb.offset((page - 1) * this.PAGE_SIZE).limit(this.PAGE_SIZE);
+
     const { entities, raw } = await qb.getRawAndEntities();
-    return this.mergeRawAndEntities(entities, raw);
+    const recipes = this.mergeRawAndEntities(entities, raw);
+
+    return {
+      items: recipes,
+      currentPage: Math.min(page, lastPage),
+      lastPage,
+    };
   }
 
   public async findManyWithDetails(

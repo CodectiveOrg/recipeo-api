@@ -16,11 +16,9 @@ import { TagSchema } from "@/validation/schemas/tag.schema";
 
 import {
   CreateRecipeResponseDto,
-  GetChosenResponseDto,
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
-  GetPopularResponseDto,
-  GetRecentResponseDto,
+  PaginatedRecipesResponseDto,
 } from "@/dto/recipe-response.dto";
 import { ResponseDto } from "@/dto/response.dto";
 
@@ -125,47 +123,56 @@ export class RecipeController {
   }
 
   public async getPopular(
-    _: Request,
-    res: Response<GetPopularResponseDto>,
+    req: Request,
+    res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const recipes = await this.recipeService.findMany(
+    const params = PaginationParamsSchema.parse(req.query);
+
+    const result = await this.recipeService.findMany(
+      params.page,
       res.locals.user?.id,
       (qb) => qb.orderBy('"likesCount"', "DESC").limit(3),
     );
 
     res.json({
       message: "Popular recipes fetched successfully.",
-      result: recipes,
+      result,
     });
   }
 
   public async getChosen(
-    _: Request,
-    res: Response<GetChosenResponseDto>,
+    req: Request,
+    res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const recipes = await this.recipeService.findMany(
+    const params = PaginationParamsSchema.parse(req.query);
+
+    const result = await this.recipeService.findMany(
+      params.page,
       res.locals.user?.id,
       (qb) => qb.where("recipe.isChosen = TRUE").limit(3),
     );
 
     res.json({
       message: "Chosen recipes fetched successfully.",
-      result: recipes,
+      result,
     });
   }
 
   public async getRecent(
-    _: Request,
-    res: Response<GetRecentResponseDto>,
+    req: Request,
+    res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const recipes = await this.recipeService.findMany(
+    const params = PaginationParamsSchema.parse(req.query);
+
+    const result = await this.recipeService.findMany(
+      params.page,
       res.locals.user?.id,
       (qb) => qb.orderBy("recipe.createdAt", "DESC").limit(3),
     );
 
     res.json({
       message: "Recent recipes fetched successfully.",
-      result: recipes,
+      result,
     });
   }
 
@@ -226,4 +233,8 @@ const CreateBodySchema = z.object({
 
 const IdParamsSchema = z.object({
   id: z.coerce.number(),
+});
+
+const PaginationParamsSchema = z.object({
+  page: z.coerce.number().optional(),
 });
