@@ -4,7 +4,6 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
-import { findManyRecipes, findRecipeById } from "@/queries/recipe.query";
 import { IngredientSchema } from "@/validation/schemas/ingredient.schema";
 import {
   RecipeDescriptionSchema,
@@ -31,6 +30,7 @@ import { Recipe } from "@/entities/recipe";
 import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
+import { RecipeService } from "@/services/recipe.service";
 
 import { fetchUserFromToken } from "@/utils/api.utils";
 import { mapToPositionAppended } from "@/utils/mapper.utils";
@@ -41,11 +41,15 @@ export class RecipeController {
   private readonly recipeRepo: Repository<Recipe>;
   private readonly userRepo: Repository<User>;
 
+  private readonly recipeService: RecipeService;
+
   public constructor(databaseService: DatabaseService) {
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
     this.likeRepo = databaseService.dataSource.getRepository(Like);
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.userRepo = databaseService.dataSource.getRepository(User);
+
+    this.recipeService = new RecipeService(databaseService);
 
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
@@ -86,8 +90,7 @@ export class RecipeController {
   ): Promise<void> {
     const params = IdParamsSchema.parse(req.params);
 
-    const recipe = await findRecipeById(
-      this.recipeRepo,
+    const recipe = await this.recipeService.findById(
       params.id,
       res.locals.user?.id,
     );
@@ -125,10 +128,8 @@ export class RecipeController {
     _: Request,
     res: Response<GetPopularResponseDto>,
   ): Promise<void> {
-    const recipes = await findManyRecipes(
-      this.recipeRepo,
+    const recipes = await this.recipeService.findMany(
       res.locals.user?.id,
-      false,
       (qb) => qb.orderBy('"likesCount"', "DESC").limit(3),
     );
 
@@ -142,10 +143,8 @@ export class RecipeController {
     _: Request,
     res: Response<GetChosenResponseDto>,
   ): Promise<void> {
-    const recipes = await findManyRecipes(
-      this.recipeRepo,
+    const recipes = await this.recipeService.findMany(
       res.locals.user?.id,
-      false,
       (qb) => qb.where("recipe.isChosen = TRUE").limit(3),
     );
 
@@ -159,10 +158,8 @@ export class RecipeController {
     _: Request,
     res: Response<GetRecentResponseDto>,
   ): Promise<void> {
-    const recipes = await findManyRecipes(
-      this.recipeRepo,
+    const recipes = await this.recipeService.findMany(
       res.locals.user?.id,
-      false,
       (qb) => qb.orderBy("recipe.createdAt", "DESC").limit(3),
     );
 
