@@ -1,15 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-
-import { Recipe } from "@/entities/recipe";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Tag {
   @PrimaryGeneratedColumn()
   public id!: number;
 
-  @Column("text")
+  @Column("text", { unique: true })
   public title!: string;
-
-  @ManyToOne(() => Recipe, (recipe) => recipe.tags)
-  public recipe!: Recipe;
 }

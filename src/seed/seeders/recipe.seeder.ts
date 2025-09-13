@@ -5,6 +5,7 @@ import path from "node:path";
 import { In, Repository } from "typeorm";
 
 import { Recipe } from "@/entities/recipe";
+import { Tag } from "@/entities/tag";
 import { User } from "@/entities/user";
 
 import { usersData } from "@/seed/data/users.data";
@@ -19,12 +20,16 @@ const BASE_URL = "https://api.spoonacular.com/recipes/random";
 
 export class RecipeSeeder {
   private readonly recipeRepo: Repository<Recipe>;
+  private readonly tagRepo: Repository<Tag>;
   private readonly userRepo: Repository<User>;
 
   private readonly batchSize: number;
 
+  private titleToTagMap: Map<string, Tag> = new Map();
+
   public constructor(databaseService: DatabaseService) {
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
+    this.tagRepo = databaseService.dataSource.getRepository(Tag);
     this.userRepo = databaseService.dataSource.getRepository(User);
 
     const envBatchSize = Number.parseInt(process.env.RECIPE_SEEDER_BATCH_SIZE!);
@@ -98,7 +103,27 @@ export class RecipeSeeder {
       recipes: SpoonacularRecipeType[];
     };
 
+    await this.fetchTags(data.recipes);
     return await this.convertAllToRecipes(data.recipes);
+  }
+
+  private async fetchTags(
+    spoonacularRecipes: SpoonacularRecipeType[],
+  ): Promise<void> {
+    const titles = new Set(
+      spoonacularRecipes.flatMap((recipe) => recipe.dishTypes),
+    );
+
+    await this.tagRepo
+      .createQueryBuilder()
+      .insert()
+      .into(Tag)
+      .values([...titles].map((title) => ({ title })))
+      .orIgnore()
+      .execute();
+
+    const tags = await this.tagRepo.find();
+    this.titleToTagMap = new Map(tags.map((tag) => [tag.title, tag]));
   }
 
   private async convertAllToRecipes(
@@ -144,7 +169,9 @@ export class RecipeSeeder {
       description: recipe.summary.split(".")[0],
       duration: recipe.readyInMinutes,
       picture,
-      tags: recipe.dishTypes.map((title) => ({ title })),
+      tags: recipe.dishTypes
+        .map((title) => this.titleToTagMap.get(title))
+        .filter((tag) => !!tag),
       ingredients: recipe.extendedIngredients.map((x, i) => ({
         position: i + 1,
         title: x.name,

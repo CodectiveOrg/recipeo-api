@@ -286,7 +286,7 @@ const PaginationParamsSchema = z.object({
 
 const SearchParamsSchema = z.object({
   phrase: z.coerce.string().optional(),
-  tag: z.coerce.string().optional(),
+  tag: z.transform((val) => (val === undefined ? val : Number(val))),
   minDuration: z.transform((val) => (val === undefined ? val : Number(val))),
   maxDuration: z.transform((val) => (val === undefined ? val : Number(val))),
 });
