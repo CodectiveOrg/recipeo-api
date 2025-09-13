@@ -19,6 +19,7 @@ import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
   PaginatedRecipesResponseDto,
+  SearchResponseDto,
 } from "@/dto/recipe-response.dto";
 import { ResponseDto } from "@/dto/response.dto";
 
@@ -49,13 +50,13 @@ export class RecipeController {
 
     this.recipeService = new RecipeService(databaseService);
 
-    this.getOneRecipe = this.getOneRecipe.bind(this);
+    this.create = this.create.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
     this.getPopular = this.getPopular.bind(this);
-    this.getRecent = this.getRecent.bind(this);
-    this.getPopular = this.getPopular.bind(this);
     this.getChosen = this.getChosen.bind(this);
-    this.create = this.create.bind(this);
+    this.getRecent = this.getRecent.bind(this);
+    this.search = this.search.bind(this);
+    this.getOneRecipe = this.getOneRecipe.bind(this);
     this.like = this.like.bind(this);
     this.unlike = this.unlike.bind(this);
   }
@@ -131,7 +132,7 @@ export class RecipeController {
     const result = await this.recipeService.findMany(
       params.page,
       res.locals.user?.id,
-      (qb) => qb.orderBy('"likesCount"', "DESC").limit(3),
+      (qb) => qb.orderBy('"likesCount"', "DESC"),
     );
 
     res.json({
@@ -149,7 +150,7 @@ export class RecipeController {
     const result = await this.recipeService.findMany(
       params.page,
       res.locals.user?.id,
-      (qb) => qb.where("recipe.isChosen = TRUE").limit(3),
+      (qb) => qb.where("recipe.isChosen = TRUE"),
     );
 
     res.json({
@@ -167,12 +168,56 @@ export class RecipeController {
     const result = await this.recipeService.findMany(
       params.page,
       res.locals.user?.id,
-      (qb) => qb.orderBy("recipe.createdAt", "DESC").limit(3),
+      (qb) => qb.orderBy("recipe.createdAt", "DESC"),
     );
 
     res.json({
       message: "Recent recipes fetched successfully.",
       result,
+    });
+  }
+
+  public async search(
+    req: Request,
+    res: Response<SearchResponseDto>,
+  ): Promise<void> {
+    const params = SearchParamsSchema.parse(req.query);
+
+    const recipes = await this.recipeService.searchMany(
+      res.locals.user?.id,
+      (qb) => {
+        if (params.phrase !== undefined) {
+          qb = qb.andWhere(
+            "(recipe.title ILIKE :phrase OR recipe.description ILIKE :phrase)",
+            { phrase: `%${params.phrase}%` },
+          );
+        }
+
+        if (params.tag !== undefined) {
+          qb = qb
+            .innerJoin("recipe.tags", "searchTags")
+            .andWhere("searchTags.id = :tag", { tag: params.tag });
+        }
+
+        if (params.minDuration !== undefined) {
+          qb = qb.andWhere("recipe.duration >= :minDuration", {
+            minDuration: params.minDuration,
+          });
+        }
+
+        if (params.maxDuration !== undefined) {
+          qb = qb.andWhere("recipe.duration <= :maxDuration", {
+            maxDuration: params.maxDuration,
+          });
+        }
+
+        return qb.orderBy("recipe.createdAt", "DESC").take(10);
+      },
+    );
+
+    res.json({
+      message: "Searched recipes fetched successfully.",
+      result: recipes,
     });
   }
 
@@ -237,4 +282,11 @@ const IdParamsSchema = z.object({
 
 const PaginationParamsSchema = z.object({
   page: z.coerce.number().optional(),
+});
+
+const SearchParamsSchema = z.object({
+  phrase: z.coerce.string().optional(),
+  tag: z.transform((val) => (val === undefined ? val : Number(val))),
+  minDuration: z.transform((val) => (val === undefined ? val : Number(val))),
+  maxDuration: z.transform((val) => (val === undefined ? val : Number(val))),
 });
