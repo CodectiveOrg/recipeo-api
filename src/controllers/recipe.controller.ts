@@ -19,6 +19,7 @@ import {
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
   PaginatedRecipesResponseDto,
+  SearchResponseDto,
 } from "@/dto/recipe-response.dto";
 import { ResponseDto } from "@/dto/response.dto";
 
@@ -49,13 +50,13 @@ export class RecipeController {
 
     this.recipeService = new RecipeService(databaseService);
 
-    this.getOneRecipe = this.getOneRecipe.bind(this);
+    this.create = this.create.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
     this.getPopular = this.getPopular.bind(this);
-    this.getRecent = this.getRecent.bind(this);
-    this.getPopular = this.getPopular.bind(this);
     this.getChosen = this.getChosen.bind(this);
-    this.create = this.create.bind(this);
+    this.getRecent = this.getRecent.bind(this);
+    this.search = this.search.bind(this);
+    this.getOneRecipe = this.getOneRecipe.bind(this);
     this.like = this.like.bind(this);
     this.unlike = this.unlike.bind(this);
   }
@@ -176,6 +177,33 @@ export class RecipeController {
     });
   }
 
+  public async search(
+    req: Request,
+    res: Response<SearchResponseDto>,
+  ): Promise<void> {
+    const params = SearchParamsSchema.parse(req.query);
+
+    const result = await this.recipeService.findMany(
+      1,
+      res.locals.user?.id,
+      (qb) => {
+        if (params.phrase !== undefined) {
+          qb = qb.andWhere(
+            "(recipe.title ILIKE %:phrase% OR recipe.description ILIKE %:phrase%)",
+            { phrase: params.phrase },
+          );
+        }
+
+        return qb.orderBy("recipe.createdAt", "DESC").limit(3);
+      },
+    );
+
+    res.json({
+      message: "Recent recipes fetched successfully.",
+      result: result.items,
+    });
+  }
+
   public async like(req: Request, res: Response<ResponseDto>): Promise<void> {
     const params = IdParamsSchema.parse(req.params);
     const user = await fetchUserFromToken(res, this.userRepo);
@@ -237,4 +265,11 @@ const IdParamsSchema = z.object({
 
 const PaginationParamsSchema = z.object({
   page: z.coerce.number().optional(),
+});
+
+const SearchParamsSchema = z.object({
+  phrase: z.coerce.string().optional(),
+  tag: z.coerce.string().optional(),
+  minDuration: z.coerce.number().optional(),
+  maxDuration: z.coerce.number().optional(),
 });

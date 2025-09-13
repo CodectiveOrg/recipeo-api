@@ -9,3 +9,4 @@ export type CreateRecipeResponseDto = ResponseDto<{ id: number }>;
 export type GetOneRecipeResponseDto = ResponseDto<Recipe>;
 export type GetFeaturedResponseDto = ResponseDto<Featured[]>;
 export type PaginatedRecipesResponseDto = ResponseDto<Paginated<Recipe>>;
+export type SearchResponseDto = ResponseDto<Recipe[]>;
