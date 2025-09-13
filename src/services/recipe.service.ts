@@ -21,7 +21,9 @@ export class RecipeService {
     currentUserId: number | undefined,
     callback: (qb: Qb) => Qb,
   ): Promise<Recipe[]> {
-    let qb = this.createQueryBuilder(currentUserId);
+    let qb = this.createQueryBuilder(currentUserId)
+      .leftJoinAndSelect("recipe.tags", "tags")
+      .addGroupBy("tags.id");
 
     qb = callback(qb);
 
@@ -34,10 +36,7 @@ export class RecipeService {
     currentUserId: number | undefined,
     callback: (qb: Qb) => Qb,
   ): Promise<Paginated<Recipe>> {
-    let qb = this.createQueryBuilder(currentUserId).leftJoinAndSelect(
-      "recipe.tags",
-      "tags",
-    );
+    let qb = this.createQueryBuilder(currentUserId);
 
     qb = callback(qb);
 

@@ -188,13 +188,13 @@ export class RecipeController {
       (qb) => {
         if (params.phrase !== undefined) {
           qb = qb.andWhere(
-            "(recipe.title ILIKE %:phrase% OR recipe.description ILIKE %:phrase%)",
-            { phrase: params.phrase },
+            "(recipe.title ILIKE :phrase OR recipe.description ILIKE :phrase)",
+            { phrase: `%${params.phrase}%` },
           );
         }
 
         if (params.tag !== undefined) {
-          qb = qb.andWhere("tag.id = :tag", { tag: params.tag });
+          qb = qb.andWhere("tags.title ILIKE :tag", { tag: `%${params.tag}%` });
         }
 
         if (params.minDuration !== undefined) {
@@ -285,6 +285,6 @@ const PaginationParamsSchema = z.object({
 const SearchParamsSchema = z.object({
   phrase: z.coerce.string().optional(),
   tag: z.coerce.string().optional(),
-  minDuration: z.coerce.number().optional(),
-  maxDuration: z.coerce.number().optional(),
+  minDuration: z.transform((val) => (val === undefined ? val : Number(val))),
+  maxDuration: z.transform((val) => (val === undefined ? val : Number(val))),
 });
