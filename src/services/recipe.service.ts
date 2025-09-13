@@ -9,7 +9,7 @@ import { Paginated } from "@/types/paginated.type";
 import { Qb } from "@/types/query-builder.type";
 
 export class RecipeService {
-  private readonly PAGE_SIZE: number = 3;
+  private readonly PAGE_SIZE: number = 10;
 
   private readonly recipeRepo: Repository<Recipe>;
 
@@ -17,12 +17,27 @@ export class RecipeService {
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
   }
 
+  public async searchMany(
+    currentUserId: number | undefined,
+    callback: (qb: Qb) => Qb,
+  ): Promise<Recipe[]> {
+    let qb = this.createQueryBuilder(currentUserId);
+
+    qb = callback(qb);
+
+    const { entities, raw } = await qb.getRawAndEntities();
+    return this.mergeRawAndEntities(entities, raw);
+  }
+
   public async findMany(
     page: number | undefined,
     currentUserId: number | undefined,
     callback: (qb: Qb) => Qb,
   ): Promise<Paginated<Recipe>> {
-    let qb = this.createQueryBuilder(currentUserId);
+    let qb = this.createQueryBuilder(currentUserId).leftJoinAndSelect(
+      "recipe.tags",
+      "tags",
+    );
 
     qb = callback(qb);
 

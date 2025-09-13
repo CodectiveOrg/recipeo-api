@@ -132,7 +132,7 @@ export class RecipeController {
     const result = await this.recipeService.findMany(
       params.page,
       res.locals.user?.id,
-      (qb) => qb.orderBy('"likesCount"', "DESC").limit(3),
+      (qb) => qb.orderBy('"likesCount"', "DESC"),
     );
 
     res.json({
@@ -150,7 +150,7 @@ export class RecipeController {
     const result = await this.recipeService.findMany(
       params.page,
       res.locals.user?.id,
-      (qb) => qb.where("recipe.isChosen = TRUE").limit(3),
+      (qb) => qb.where("recipe.isChosen = TRUE"),
     );
 
     res.json({
@@ -168,7 +168,7 @@ export class RecipeController {
     const result = await this.recipeService.findMany(
       params.page,
       res.locals.user?.id,
-      (qb) => qb.orderBy("recipe.createdAt", "DESC").limit(3),
+      (qb) => qb.orderBy("recipe.createdAt", "DESC"),
     );
 
     res.json({
@@ -183,8 +183,7 @@ export class RecipeController {
   ): Promise<void> {
     const params = SearchParamsSchema.parse(req.query);
 
-    const result = await this.recipeService.findMany(
-      1,
+    const recipes = await this.recipeService.searchMany(
       res.locals.user?.id,
       (qb) => {
         if (params.phrase !== undefined) {
@@ -194,13 +193,29 @@ export class RecipeController {
           );
         }
 
-        return qb.orderBy("recipe.createdAt", "DESC").limit(3);
+        if (params.tag !== undefined) {
+          qb = qb.andWhere("tag.id = :tag", { tag: params.tag });
+        }
+
+        if (params.minDuration !== undefined) {
+          qb = qb.andWhere("recipe.duration >= :minDuration", {
+            minDuration: params.minDuration,
+          });
+        }
+
+        if (params.maxDuration !== undefined) {
+          qb = qb.andWhere("recipe.duration <= :maxDuration", {
+            maxDuration: params.maxDuration,
+          });
+        }
+
+        return qb.orderBy("recipe.createdAt", "DESC").limit(10);
       },
     );
 
     res.json({
-      message: "Recent recipes fetched successfully.",
-      result: result.items,
+      message: "Searched recipes fetched successfully.",
+      result: recipes,
     });
   }
 
