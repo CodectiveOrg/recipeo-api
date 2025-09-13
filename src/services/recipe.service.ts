@@ -21,9 +21,10 @@ export class RecipeService {
     currentUserId: number | undefined,
     callback: (qb: Qb) => Qb,
   ): Promise<Recipe[]> {
-    let qb = this.createQueryBuilder(currentUserId)
-      .leftJoinAndSelect("recipe.tags", "tags")
-      .addGroupBy("tags.id");
+    let qb = this.createQueryBuilder(currentUserId).leftJoinAndSelect(
+      "recipe.tags",
+      "tags",
+    );
 
     qb = callback(qb);
 
@@ -85,24 +86,25 @@ export class RecipeService {
       .createQueryBuilder("recipe")
       .leftJoinAndSelect("recipe.user", "user")
       .leftJoin("recipe.likes", "like")
-      .addSelect("CAST(COUNT(like.id) AS INT)", "likesCount")
+      .addSelect(this.likesCountSelection, "likesCount")
       .addSelect(
         this.isLikedByCurrentUserSelection(currentUserId),
         "isLikedByCurrentUser",
-      )
-      .groupBy("recipe.id")
-      .addGroupBy("user.id");
+      );
   }
 
   private createDetailedQueryBuilder(currentUserId: number | undefined): Qb {
     return this.createQueryBuilder(currentUserId)
       .leftJoinAndSelect("recipe.tags", "tags")
       .leftJoinAndSelect("recipe.ingredients", "ingredients")
-      .leftJoinAndSelect("recipe.steps", "steps")
-      .addGroupBy("tags.id")
-      .addGroupBy("ingredients.id")
-      .addGroupBy("steps.id");
+      .leftJoinAndSelect("recipe.steps", "steps");
   }
+
+  private likesCountSelection = (qb: Qb<Like>): Qb<Like> =>
+    qb
+      .select("CAST(COUNT(like.id) AS INT)", "likesCount")
+      .from(Like, "like")
+      .where("like.recipeId = recipe.id");
 
   private isLikedByCurrentUserSelection =
     (currentUserId?: number) =>

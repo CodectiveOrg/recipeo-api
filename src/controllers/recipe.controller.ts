@@ -211,7 +211,7 @@ export class RecipeController {
           });
         }
 
-        return qb.orderBy("recipe.createdAt", "DESC").limit(10);
+        return qb.orderBy("recipe.createdAt", "DESC").take(10);
       },
     );
 
