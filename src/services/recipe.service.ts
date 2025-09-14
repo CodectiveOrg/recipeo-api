@@ -9,12 +9,27 @@ import { Paginated } from "@/types/paginated.type";
 import { Qb } from "@/types/query-builder.type";
 
 export class RecipeService {
-  private readonly PAGE_SIZE: number = 3;
+  private readonly PAGE_SIZE: number = 10;
 
   private readonly recipeRepo: Repository<Recipe>;
 
   public constructor(databaseService: DatabaseService) {
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
+  }
+
+  public async searchMany(
+    currentUserId: number | undefined,
+    callback: (qb: Qb) => Qb,
+  ): Promise<Recipe[]> {
+    let qb = this.createQueryBuilder(currentUserId).leftJoinAndSelect(
+      "recipe.tags",
+      "tags",
+    );
+
+    qb = callback(qb);
+
+    const { entities, raw } = await qb.getRawAndEntities();
+    return this.mergeRawAndEntities(entities, raw);
   }
 
   public async findMany(
@@ -71,24 +86,25 @@ export class RecipeService {
       .createQueryBuilder("recipe")
       .leftJoinAndSelect("recipe.user", "user")
       .leftJoin("recipe.likes", "like")
-      .addSelect("CAST(COUNT(like.id) AS INT)", "likesCount")
+      .addSelect(this.likesCountSelection, "likesCount")
       .addSelect(
         this.isLikedByCurrentUserSelection(currentUserId),
         "isLikedByCurrentUser",
-      )
-      .groupBy("recipe.id")
-      .addGroupBy("user.id");
+      );
   }
 
   private createDetailedQueryBuilder(currentUserId: number | undefined): Qb {
     return this.createQueryBuilder(currentUserId)
       .leftJoinAndSelect("recipe.tags", "tags")
       .leftJoinAndSelect("recipe.ingredients", "ingredients")
-      .leftJoinAndSelect("recipe.steps", "steps")
-      .addGroupBy("tags.id")
-      .addGroupBy("ingredients.id")
-      .addGroupBy("steps.id");
+      .leftJoinAndSelect("recipe.steps", "steps");
   }
+
+  private likesCountSelection = (qb: Qb<Like>): Qb<Like> =>
+    qb
+      .select("CAST(COUNT(like.id) AS INT)", "likesCount")
+      .from(Like, "like")
+      .where("like.recipeId = recipe.id");
 
   private isLikedByCurrentUserSelection =
     (currentUserId?: number) =>

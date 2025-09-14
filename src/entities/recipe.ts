@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -21,7 +23,7 @@ export class Recipe {
   @PrimaryGeneratedColumn()
   public id!: number;
 
-  @Column("text")
+  @Column("text", { unique: true })
   public title!: string;
 
   @Column("text")
@@ -36,7 +38,8 @@ export class Recipe {
   @Column("boolean", { default: false })
   public isChosen!: boolean;
 
-  @OneToMany(() => Tag, (tag) => tag.recipe, { cascade: true })
+  @ManyToMany(() => Tag)
+  @JoinTable()
   public tags!: Tag[];
 
   @OneToMany(() => Ingredient, (ingredient) => ingredient.recipe, {

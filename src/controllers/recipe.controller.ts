@@ -4,7 +4,6 @@ import { Repository } from "typeorm";
 
 import { z } from "zod";
 
-import { findManyRecipes, findRecipeById } from "@/queries/recipe.query";
 import { IngredientSchema } from "@/validation/schemas/ingredient.schema";
 import {
   RecipeDescriptionSchema,
@@ -17,22 +16,20 @@ import { TagSchema } from "@/validation/schemas/tag.schema";
 
 import {
   CreateRecipeResponseDto,
-  GetChosenResponseDto,
   GetFeaturedResponseDto,
   GetOneRecipeResponseDto,
-  GetPopularResponseDto,
-  GetRecentResponseDto,
-  GetTagsResponseDto,
+  PaginatedRecipesResponseDto,
+  SearchResponseDto,
 } from "@/dto/recipe-response.dto";
 import { ResponseDto } from "@/dto/response.dto";
 
 import { Featured } from "@/entities/featured";
 import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
-import { Tag } from "@/entities/tag";
 import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
+import { RecipeService } from "@/services/recipe.service";
 
 import { fetchUserFromToken } from "@/utils/api.utils";
 import { mapToPositionAppended } from "@/utils/mapper.utils";
@@ -42,23 +39,24 @@ export class RecipeController {
   private readonly likeRepo: Repository<Like>;
   private readonly recipeRepo: Repository<Recipe>;
   private readonly userRepo: Repository<User>;
-  private readonly tagRepo: Repository<Tag>;
+
+  private readonly recipeService: RecipeService;
 
   public constructor(databaseService: DatabaseService) {
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
     this.likeRepo = databaseService.dataSource.getRepository(Like);
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
     this.userRepo = databaseService.dataSource.getRepository(User);
-    this.tagRepo = databaseService.dataSource.getRepository(Tag);
 
-    this.getOneRecipe = this.getOneRecipe.bind(this);
+    this.recipeService = new RecipeService(databaseService);
+
+    this.create = this.create.bind(this);
     this.getFeatured = this.getFeatured.bind(this);
     this.getPopular = this.getPopular.bind(this);
-    this.getRecent = this.getRecent.bind(this);
-    this.getPopular = this.getPopular.bind(this);
     this.getChosen = this.getChosen.bind(this);
-    this.getTags = this.getTags.bind(this);
-    this.create = this.create.bind(this);
+    this.getRecent = this.getRecent.bind(this);
+    this.search = this.search.bind(this);
+    this.getOneRecipe = this.getOneRecipe.bind(this);
     this.like = this.like.bind(this);
     this.unlike = this.unlike.bind(this);
   }
@@ -91,8 +89,7 @@ export class RecipeController {
   ): Promise<void> {
     const params = IdParamsSchema.parse(req.params);
 
-    const recipe = await findRecipeById(
-      this.recipeRepo,
+    const recipe = await this.recipeService.findById(
       params.id,
       res.locals.user?.id,
     );
@@ -127,65 +124,100 @@ export class RecipeController {
   }
 
   public async getPopular(
-    _: Request,
-    res: Response<GetPopularResponseDto>,
+    req: Request,
+    res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const recipes = await findManyRecipes(
-      this.recipeRepo,
+    const params = PaginationParamsSchema.parse(req.query);
+
+    const result = await this.recipeService.findMany(
+      params.page,
       res.locals.user?.id,
-      false,
-      (qb) => qb.orderBy('"likesCount"', "DESC").limit(3),
+      (qb) => qb.orderBy('"likesCount"', "DESC"),
     );
 
     res.json({
       message: "Popular recipes fetched successfully.",
-      result: recipes,
+      result,
     });
   }
 
   public async getChosen(
-    _: Request,
-    res: Response<GetChosenResponseDto>,
+    req: Request,
+    res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const recipes = await findManyRecipes(
-      this.recipeRepo,
+    const params = PaginationParamsSchema.parse(req.query);
+
+    const result = await this.recipeService.findMany(
+      params.page,
       res.locals.user?.id,
-      false,
-      (qb) => qb.where("recipe.isChosen = TRUE").limit(3),
+      (qb) => qb.where("recipe.isChosen = TRUE"),
     );
 
     res.json({
       message: "Chosen recipes fetched successfully.",
-      result: recipes,
+      result,
     });
   }
 
   public async getRecent(
-    _: Request,
-    res: Response<GetRecentResponseDto>,
+    req: Request,
+    res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const recipes = await findManyRecipes(
-      this.recipeRepo,
+    const params = PaginationParamsSchema.parse(req.query);
+
+    const result = await this.recipeService.findMany(
+      params.page,
       res.locals.user?.id,
-      false,
-      (qb) => qb.orderBy("recipe.createdAt", "DESC").limit(3),
+      (qb) => qb.orderBy("recipe.createdAt", "DESC"),
     );
 
     res.json({
       message: "Recent recipes fetched successfully.",
-      result: recipes,
+      result,
     });
   }
 
-  public async getTags(
-    _: Request,
-    res: Response<GetTagsResponseDto>,
+  public async search(
+    req: Request,
+    res: Response<SearchResponseDto>,
   ): Promise<void> {
-    const tags = await this.tagRepo.find({});
+    const params = SearchParamsSchema.parse(req.query);
+
+    const recipes = await this.recipeService.searchMany(
+      res.locals.user?.id,
+      (qb) => {
+        if (params.phrase !== undefined) {
+          qb = qb.andWhere(
+            "(recipe.title ILIKE :phrase OR recipe.description ILIKE :phrase)",
+            { phrase: `%${params.phrase}%` },
+          );
+        }
+
+        if (params.tag !== undefined) {
+          qb = qb
+            .innerJoin("recipe.tags", "searchTags")
+            .andWhere("searchTags.id = :tag", { tag: params.tag });
+        }
+
+        if (params.minDuration !== undefined) {
+          qb = qb.andWhere("recipe.duration >= :minDuration", {
+            minDuration: params.minDuration,
+          });
+        }
+
+        if (params.maxDuration !== undefined) {
+          qb = qb.andWhere("recipe.duration <= :maxDuration", {
+            maxDuration: params.maxDuration,
+          });
+        }
+
+        return qb.orderBy("recipe.createdAt", "DESC").take(10);
+      },
+    );
 
     res.json({
-      message: "Tags fetched successfully.",
-      result: tags,
+      message: "Searched recipes fetched successfully.",
+      result: recipes,
     });
   }
 
@@ -246,4 +278,15 @@ const CreateBodySchema = z.object({
 
 const IdParamsSchema = z.object({
   id: z.coerce.number(),
+});
+
+const PaginationParamsSchema = z.object({
+  page: z.coerce.number().optional(),
+});
+
+const SearchParamsSchema = z.object({
+  phrase: z.coerce.string().optional(),
+  tag: z.transform((val) => (val === undefined ? val : Number(val))),
+  minDuration: z.transform((val) => (val === undefined ? val : Number(val))),
+  maxDuration: z.transform((val) => (val === undefined ? val : Number(val))),
 });

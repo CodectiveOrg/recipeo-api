@@ -5,6 +5,7 @@ import { Tag } from "@/entities/tag";
 
 export type SeedRecipeType = Omit<
   Recipe,
+  | "isChosen"
   | "tags"
   | "ingredients"
   | "steps"
