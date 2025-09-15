@@ -92,13 +92,13 @@ export class AuthController {
 
     generateToken(res, mapToTokenPayload(user));
 
-    res.json({ message: "Signed in successfully." });
+    res.status(200).json({ message: "Signed in successfully." });
   }
 
   public async signOut(_: Request, res: Response<ResponseDto>): Promise<void> {
     res.clearCookie(process.env.TOKEN_KEY!);
 
-    res.json({ message: "Signed out successfully." });
+    res.status(200).json({ message: "Signed out successfully." });
   }
 
   public async verify(
@@ -112,7 +112,7 @@ export class AuthController {
       return;
     }
 
-    res.json({ message: "Token is valid.", result: user });
+    res.status(200).json({ message: "Token is valid.", result: user });
   }
 }
 

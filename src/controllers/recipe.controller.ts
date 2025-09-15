@@ -103,7 +103,7 @@ export class RecipeController {
       return;
     }
 
-    res.json({
+    res.status(200).json({
       message: "Recipe fetched successfully.",
       result: recipe,
     });
@@ -117,7 +117,7 @@ export class RecipeController {
       relations: { recipe: { user: true } },
     });
 
-    res.json({
+    res.status(200).json({
       message: "Recipe fetched successfully.",
       result: featured,
     });
@@ -135,7 +135,7 @@ export class RecipeController {
       (qb) => qb.orderBy('"likesCount"', "DESC"),
     );
 
-    res.json({
+    res.status(200).json({
       message: "Popular recipes fetched successfully.",
       result,
     });
@@ -153,7 +153,7 @@ export class RecipeController {
       (qb) => qb.where("recipe.isChosen = TRUE"),
     );
 
-    res.json({
+    res.status(200).json({
       message: "Chosen recipes fetched successfully.",
       result,
     });
@@ -171,7 +171,7 @@ export class RecipeController {
       (qb) => qb.orderBy("recipe.createdAt", "DESC"),
     );
 
-    res.json({
+    res.status(200).json({
       message: "Recent recipes fetched successfully.",
       result,
     });
@@ -215,7 +215,7 @@ export class RecipeController {
       },
     );
 
-    res.json({
+    res.status(200).json({
       message: "Searched recipes fetched successfully.",
       result: recipes,
     });
@@ -240,7 +240,7 @@ export class RecipeController {
 
     await this.likeRepo.save(like);
 
-    res.json({ message: "Liked recipe successfully." });
+    res.status(200).json({ message: "Liked recipe successfully." });
   }
 
   public async unlike(req: Request, res: Response<ResponseDto>): Promise<void> {
@@ -262,7 +262,7 @@ export class RecipeController {
 
     await this.likeRepo.delete(like);
 
-    res.json({ message: "Unliked recipe successfully." });
+    res.status(200).json({ message: "Unliked recipe successfully." });
   }
 }
 
