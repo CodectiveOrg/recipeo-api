@@ -23,7 +23,7 @@ export class TagController {
   ): Promise<void> {
     const tags = await this.tagRepo.find();
 
-    res.status(200).json({
+    res.json({
       message: "All tags fetched successfully.",
       result: tags,
     });

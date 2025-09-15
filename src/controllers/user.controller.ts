@@ -60,7 +60,7 @@ export class UserController {
       return;
     }
 
-    res.status(200).json({
+    res.json({
       message: "User fetched successfully.",
       result: user,
     });
@@ -86,7 +86,7 @@ export class UserController {
       return;
     }
 
-    res.status(200).json({
+    res.json({
       message: "Recipes fetched successfully.",
       result: user.recipes,
     });
@@ -111,7 +111,7 @@ export class UserController {
 
     await this.userRepo.save(updatedUser);
 
-    res.status(200).json({ message: "Profile updated successfully." });
+    res.json({ message: "Profile updated successfully." });
   }
 
   public async follow(req: Request, res: Response<ResponseDto>): Promise<void> {
@@ -157,7 +157,7 @@ export class UserController {
 
     await this.userRepo.save(currentUser);
 
-    res.status(200).json({ message: "Followed successfully." });
+    res.json({ message: "Followed successfully." });
   }
 
   public async unfollow(
@@ -197,7 +197,7 @@ export class UserController {
 
     await this.userRepo.save(currentUser);
 
-    res.status(200).json({ message: "Unfollowed successfully." });
+    res.json({ message: "Unfollowed successfully." });
   }
 }
 
