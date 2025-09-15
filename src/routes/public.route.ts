@@ -11,6 +11,7 @@ export function generatePublicRoutes(databaseService: DatabaseService): Router {
   router.get("/picture/user/:filename", controller.getPicture("user"));
   router.get("/picture/recipe/:filename", controller.getPicture("recipe"));
   router.get("/picture/featured/:filename", controller.getPicture("featured"));
+  router.get("/picture/step/:filename", controller.getPicture("step"));
 
   return router;
 }
