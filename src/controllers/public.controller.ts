@@ -24,9 +24,6 @@ export class PublicController {
 
       const file = await FileService.load(folder, filename);
 
-      console.log(filename);
-      console.log(file);
-
       if (!file) {
         res.status(404).json({
           message: "Picture not found.",
