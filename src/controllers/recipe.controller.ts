@@ -56,6 +56,7 @@ export class RecipeController {
     this.getChosen = this.getChosen.bind(this);
     this.getRecent = this.getRecent.bind(this);
     this.getUserRecipes = this.getUserRecipes.bind(this);
+    this.getUserLikedRecipes = this.getUserLikedRecipes.bind(this);
     this.search = this.search.bind(this);
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.like = this.like.bind(this);
@@ -203,6 +204,48 @@ export class RecipeController {
         qb
           .andWhere("recipe.userId = :userId", { userId })
           .orderBy("recipe.createdAt", "DESC"),
+    );
+
+    res.json({
+      message: "User recipes fetched successfully.",
+      result,
+    });
+  }
+
+  public async getUserLikedRecipes(
+    req: Request,
+    res: Response<PaginatedRecipesResponseDto>,
+  ): Promise<void> {
+    const { userId } = UserIdParamsSchema.parse(req.params);
+    const params = PaginatedParamsSchema.parse(req.query);
+
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found.",
+        error: "Not Found",
+      });
+
+      return;
+    }
+
+    const result = await this.recipeService.findMany(
+      params.page,
+      res.locals.user?.id,
+      (qb) => {
+        if (userId !== res.locals.user?.id) {
+          qb = qb.andWhere("recipe.userId = :userId", { userId });
+        }
+
+        const isLikedByCurrentUserQuery = this.recipeService
+          .isLikedByCurrentUserSelection(res.locals.user?.id)(qb)
+          .getQuery();
+
+        return qb
+          .andWhere(`${isLikedByCurrentUserQuery} = True`)
+          .orderBy("recipe.createdAt", "DESC");
+      },
     );
 
     res.json({

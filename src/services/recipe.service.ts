@@ -106,10 +106,11 @@ export class RecipeService {
       .from(Like, "like")
       .where("like.recipeId = recipe.id");
 
-  private isLikedByCurrentUserSelection =
+  public isLikedByCurrentUserSelection =
     (currentUserId?: number) =>
-    (qb: Qb<Like>): Qb<Like> =>
+    (qb: Qb): Qb<Like> =>
       qb
+        .subQuery()
         .select("CAST(COUNT(like.id) AS INT) > 0", "isLikedByCurrentUser")
         .from(Like, "like")
         .where("like.recipeId = recipe.id")
