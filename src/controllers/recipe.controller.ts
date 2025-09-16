@@ -55,6 +55,7 @@ export class RecipeController {
     this.getPopular = this.getPopular.bind(this);
     this.getChosen = this.getChosen.bind(this);
     this.getRecent = this.getRecent.bind(this);
+    this.getUserRecipes = this.getUserRecipes.bind(this);
     this.search = this.search.bind(this);
     this.getOneRecipe = this.getOneRecipe.bind(this);
     this.like = this.like.bind(this);
@@ -127,7 +128,7 @@ export class RecipeController {
     req: Request,
     res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const params = PaginationParamsSchema.parse(req.query);
+    const params = PaginatedParamsSchema.parse(req.query);
 
     const result = await this.recipeService.findMany(
       params.page,
@@ -145,7 +146,7 @@ export class RecipeController {
     req: Request,
     res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const params = PaginationParamsSchema.parse(req.query);
+    const params = PaginatedParamsSchema.parse(req.query);
 
     const result = await this.recipeService.findMany(
       params.page,
@@ -163,7 +164,7 @@ export class RecipeController {
     req: Request,
     res: Response<PaginatedRecipesResponseDto>,
   ): Promise<void> {
-    const params = PaginationParamsSchema.parse(req.query);
+    const params = PaginatedParamsSchema.parse(req.query);
 
     const result = await this.recipeService.findMany(
       params.page,
@@ -173,6 +174,39 @@ export class RecipeController {
 
     res.json({
       message: "Recent recipes fetched successfully.",
+      result,
+    });
+  }
+
+  public async getUserRecipes(
+    req: Request,
+    res: Response<PaginatedRecipesResponseDto>,
+  ): Promise<void> {
+    const { userId } = UserIdParamsSchema.parse(req.params);
+    const params = PaginatedParamsSchema.parse(req.query);
+
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+
+    if (!user) {
+      res.status(404).json({
+        message: "User not found.",
+        error: "Not Found",
+      });
+
+      return;
+    }
+
+    const result = await this.recipeService.findMany(
+      params.page,
+      res.locals.user?.id,
+      (qb) =>
+        qb
+          .andWhere("recipe.userId = :userId", { userId })
+          .orderBy("recipe.createdAt", "DESC"),
+    );
+
+    res.json({
+      message: "User recipes fetched successfully.",
       result,
     });
   }
@@ -280,7 +314,11 @@ const IdParamsSchema = z.object({
   id: z.coerce.number(),
 });
 
-const PaginationParamsSchema = z.object({
+const UserIdParamsSchema = z.object({
+  userId: z.coerce.number(),
+});
+
+const PaginatedParamsSchema = z.object({
   page: z.coerce.number().optional(),
 });
 
