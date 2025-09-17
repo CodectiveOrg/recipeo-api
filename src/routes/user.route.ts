@@ -4,7 +4,7 @@ import multer from "multer";
 
 import { UserController } from "@/controllers/user.controller";
 
-import { authMiddleware } from "@/middlewares/auth.middleware";
+import { authMiddleware, tokenMiddleware } from "@/middlewares/auth.middleware";
 import { pictureMiddleware } from "@/middlewares/picture.middleware";
 
 import { DatabaseService } from "@/services/database.service";
@@ -21,10 +21,9 @@ export function generateUserRoutes(databaseService: DatabaseService): Router {
     pictureMiddleware,
     controller.update,
   );
-  router.get("/follow/:targetUserId", authMiddleware, controller.follow);
-  router.get("/unfollow/:targetUserId", authMiddleware, controller.unfollow);
-  router.get("/:id", controller.getOneUser);
-  router.get("/:id/recipes", controller.getAllRecipes);
+  router.post("/:targetUserId/follow", authMiddleware, controller.follow);
+  router.post("/:targetUserId/unfollow", authMiddleware, controller.unfollow);
+  router.get("/:id", tokenMiddleware, controller.getOneUser);
 
   return router;
 }
