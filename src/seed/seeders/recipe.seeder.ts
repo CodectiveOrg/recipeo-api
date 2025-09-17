@@ -174,9 +174,7 @@ export class RecipeSeeder {
         .filter((tag) => !!tag),
       ingredients: recipe.extendedIngredients.map((x, i) => ({
         position: i + 1,
-        title: x.name,
-        amount: x.amount,
-        unit: x.unit,
+        title: [x.amount, x.unit, x.name].filter(Boolean).join(" "),
       })),
       steps: steps.map((x) => ({
         position: x.number,
