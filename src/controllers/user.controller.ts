@@ -9,10 +9,7 @@ import { PasswordSchema } from "@/validation/schemas/password.schema";
 import { UsernameSchema } from "@/validation/schemas/username.schema";
 
 import { ResponseDto } from "@/dto/response.dto";
-import {
-  GetAllRecipesResponseDto,
-  GetOneUserResponseDto,
-} from "@/dto/user-response.dto";
+import { GetOneUserResponseDto } from "@/dto/user-response.dto";
 
 import { User } from "@/entities/user";
 
@@ -45,12 +42,23 @@ export class UserController {
   ): Promise<void> {
     const params = GetOneUserParamsSchema.parse(req.params);
 
-    const user = await this.userRepo
+    const { entities, raw } = await this.userRepo
       .createQueryBuilder("user")
+      .addSelect(
+        (qb) =>
+          qb
+            .select("COUNT(*) > 0", "isFollowedByCurrentUser")
+            .from("user_followers_user", "ufu")
+            .where('ufu."userId_1" = :id', { id: params.id })
+            .andWhere('ufu."userId_2" = :currentUserId', {
+              currentUserId: res.locals.user?.id,
+            }),
+        "isFollowedByCurrentUser",
+      )
       .where("user.id = :id", { id: params.id })
-      .getOne();
+      .getRawAndEntities();
 
-    if (!user) {
+    if (entities.length === 0) {
       res.status(404).json({
         message: "User not found.",
         error: "Not Found",
@@ -58,6 +66,11 @@ export class UserController {
 
       return;
     }
+
+    const user = {
+      ...entities[0],
+      isFollowedByCurrentUser: raw[0].isFollowedByCurrentUser,
+    };
 
     res.json({
       message: "User fetched successfully.",
