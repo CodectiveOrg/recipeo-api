@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   VirtualColumn,
@@ -12,6 +14,7 @@ import {
 
 import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
+import { Settings } from "@/entities/settings";
 
 @Entity()
 export class User {
@@ -42,6 +45,10 @@ export class User {
 
   @ManyToMany(() => User, (user) => user.followers)
   public following!: User[];
+
+  @OneToOne(() => Settings, (settings) => settings.user)
+  @JoinColumn()
+  public settings?: Settings;
 
   @CreateDateColumn({ select: false })
   public createdAt!: Date;
