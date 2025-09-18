@@ -11,6 +11,7 @@ import { globalErrorHandler } from "@/handlers/global-error.handler";
 import { generateAuthRoutes } from "@/routes/auth.route";
 import { generatePublicRoutes } from "@/routes/public.route";
 import { generateRecipeRoutes } from "@/routes/recipe.route";
+import { generateSettingsRoutes } from "@/routes/settings.route";
 import { generateTagRoutes } from "@/routes/tag.route";
 import { generateUserRoutes } from "@/routes/user.route";
 
@@ -40,6 +41,7 @@ async function main(): Promise<void> {
   app.use("/api/recipe", generateRecipeRoutes(databaseService));
   app.use("/api/tag", generateTagRoutes(databaseService));
   app.use("/api/user", generateUserRoutes(databaseService));
+  app.use("/api/settings", generateSettingsRoutes(databaseService));
 
   app.use(globalErrorHandler);
 

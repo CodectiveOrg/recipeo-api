@@ -32,6 +32,8 @@ export class SettingsController {
   ): Promise<void> {
     const user = await fetchUserFromToken(res, this.userRepo);
 
+    console.log("user");
+
     const record = await this.settingsRepo.findOne({
       where: { user: { id: user.id } },
     });

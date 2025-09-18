@@ -5,6 +5,7 @@ import { Featured } from "@/entities/featured";
 import { Ingredient } from "@/entities/ingredient";
 import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
+import { Settings } from "@/entities/settings";
 import { Step } from "@/entities/step";
 import { Tag } from "@/entities/tag";
 import { User } from "@/entities/user";
@@ -16,7 +17,7 @@ export class DatabaseService {
     this.dataSource = new DataSource({
       type: "postgres",
       url: process.env.DATABASE_URL!,
-      entities: [Featured, Ingredient, Like, Recipe, Step, Tag, User],
+      entities: [Featured, Ingredient, Like, Recipe, Step, Tag, User, Settings],
       synchronize: true,
       logging: false,
       ...options,
