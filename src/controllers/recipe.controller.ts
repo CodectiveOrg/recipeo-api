@@ -273,7 +273,7 @@ export class RecipeController {
         if (params.tag !== undefined) {
           qb = qb
             .innerJoin("recipe.tags", "searchTags")
-            .andWhere("searchTags.id = :tag", { tag: params.tag });
+            .andWhere("searchTags.title = :tag", { tag: params.tag });
         }
 
         if (params.minDuration !== undefined) {
@@ -367,7 +367,7 @@ const PaginatedParamsSchema = z.object({
 
 const SearchParamsSchema = z.object({
   phrase: z.coerce.string().optional(),
-  tag: z.transform((val) => (val === undefined ? val : Number(val))),
+  tag: z.coerce.string().optional(),
   minDuration: z.transform((val) => (val === undefined ? val : Number(val))),
   maxDuration: z.transform((val) => (val === undefined ? val : Number(val))),
 });
