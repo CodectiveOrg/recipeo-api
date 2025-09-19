@@ -55,6 +55,8 @@ export class UserController {
             }),
         "isFollowedByCurrentUser",
       )
+      .addSelect("user.email")
+      .addSelect("user.password")
       .where("user.id = :id", { id: params.id })
       .getRawAndEntities();
 
