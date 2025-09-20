@@ -170,7 +170,7 @@ export class RecipeSeeder {
       duration: recipe.readyInMinutes,
       picture,
       tags: recipe.dishTypes
-        .map((title) => this.titleToTagMap.get(title))
+        .map((title) => this.titleToTagMap.get(capitalize(title)))
         .filter((tag) => !!tag),
       ingredients: this.convertToIngredients(recipe),
       steps: steps.map((x) => ({

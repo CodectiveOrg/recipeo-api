@@ -273,7 +273,9 @@ export class RecipeController {
         if (params.tag !== undefined) {
           qb = qb
             .innerJoin("recipe.tags", "searchTags")
-            .andWhere("searchTags.title = :tag", { tag: params.tag });
+            .andWhere("searchTags.title ILIKE :tag", {
+              tag: `%${params.tag}%`,
+            });
         }
 
         if (params.minDuration !== undefined) {
