@@ -14,7 +14,7 @@ import { SpoonacularRecipeType } from "@/seed/types/spoonacular-recipe.type";
 
 import { DatabaseService } from "@/services/database.service";
 
-import { formatFilenamePrefix } from "@/utils/format.utils";
+import { capitalize, formatFilenamePrefix } from "@/utils/format.utils";
 
 const BASE_URL = "https://api.spoonacular.com/recipes/random";
 
@@ -111,7 +111,7 @@ export class RecipeSeeder {
     spoonacularRecipes: SpoonacularRecipeType[],
   ): Promise<void> {
     const titles = new Set(
-      spoonacularRecipes.flatMap((recipe) => recipe.dishTypes),
+      spoonacularRecipes.flatMap((recipe) => recipe.dishTypes).map(capitalize),
     );
 
     await this.tagRepo
@@ -170,17 +170,24 @@ export class RecipeSeeder {
       duration: recipe.readyInMinutes,
       picture,
       tags: recipe.dishTypes
-        .map((title) => this.titleToTagMap.get(title))
+        .map((title) => this.titleToTagMap.get(capitalize(title)))
         .filter((tag) => !!tag),
-      ingredients: recipe.extendedIngredients.map((x, i) => ({
-        position: i + 1,
-        title: [x.amount, x.unit, x.name].filter(Boolean).join(" "),
-      })),
+      ingredients: this.convertToIngredients(recipe),
       steps: steps.map((x) => ({
         position: x.number,
         description: x.step,
       })),
     };
+  }
+
+  private convertToIngredients(
+    recipe: SpoonacularRecipeType,
+  ): SeedRecipeType["ingredients"] {
+    return recipe.extendedIngredients.map((x, i) => ({
+      position: i + 1,
+      amount: Math.round(x.amount * 8) / 8,
+      title: [x.unit, x.name].filter(Boolean).map(capitalize).join(" "),
+    }));
   }
 
   private async downloadPicture(
