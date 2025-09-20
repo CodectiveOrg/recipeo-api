@@ -10,3 +10,13 @@ export function formatFilenamePrefix(date: Date): string {
 
   return parts.map((x) => x.toString().padStart(2, "0")).join("");
 }
+
+export function capitalize(text: string): string {
+  const parts = text.split(" ");
+
+  const capitalizedParts = parts.map(
+    (part) => `${part[0].toUpperCase()}${part.slice(1).toLowerCase()}`,
+  );
+
+  return capitalizedParts.join(" ");
+}
