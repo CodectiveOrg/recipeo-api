@@ -9,7 +9,7 @@ export const RecipeDescriptionSchema = z
   .string("Description must be a string.")
   .trim();
 
-export const RecipeDurationSchema = z
+export const RecipeDurationSchema = z.coerce
   .number()
   .int("Duration must be an integer.")
   .min(1, "Duration must be greater than 1 minute.")

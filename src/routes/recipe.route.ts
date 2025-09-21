@@ -1,16 +1,26 @@
 import { Router } from "express";
 
+import multer from "multer";
+
 import { RecipeController } from "@/controllers/recipe.controller";
 
 import { authMiddleware, tokenMiddleware } from "@/middlewares/auth.middleware";
+import { pictureMiddleware } from "@/middlewares/picture.middleware";
 
 import { DatabaseService } from "@/services/database.service";
 
 export function generateRecipeRoutes(databaseService: DatabaseService): Router {
   const router = Router();
+  const upload = multer();
   const controller = new RecipeController(databaseService);
 
-  router.post("/", authMiddleware, controller.create);
+  router.post(
+    "/",
+    authMiddleware,
+    upload.single("picture"),
+    pictureMiddleware,
+    controller.create,
+  );
   router.get("/featured", controller.getFeatured);
   router.get("/popular", tokenMiddleware, controller.getPopular);
   router.get("/chosen", tokenMiddleware, controller.getChosen);

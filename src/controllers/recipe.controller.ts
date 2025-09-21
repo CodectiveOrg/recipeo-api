@@ -32,6 +32,7 @@ import { RecipeService } from "@/services/recipe.service";
 
 import { fetchUserFromToken } from "@/utils/api.utils";
 import { mapToPositionAppended } from "@/utils/mapper.utils";
+import { parseJson } from "@/utils/zod.utils";
 
 export class RecipeController {
   private readonly featuredRepo: Repository<Featured>;
@@ -348,9 +349,9 @@ const CreateBodySchema = z.object({
   title: RecipeTitleSchema,
   description: RecipeDescriptionSchema,
   duration: RecipeDurationSchema,
-  tags: TagArraySchema,
-  ingredients: z.array(IngredientSchema),
-  steps: z.array(StepSchema),
+  ingredients: z.preprocess(parseJson, z.array(IngredientSchema)),
+  steps: z.preprocess(parseJson, z.array(StepSchema)),
+  tags: z.preprocess(parseJson, TagArraySchema),
 });
 
 const IdParamsSchema = z.object({
