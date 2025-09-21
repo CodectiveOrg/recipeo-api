@@ -1,6 +1,6 @@
 import { User } from "@/entities/user";
 
-export type SeedUserType = Omit<
+export type SeedUserType = Pick<
   User,
-  "id" | "recipes" | "createdAt" | "updatedAt"
+  "username" | "email" | "password" | "picture"
 >;
