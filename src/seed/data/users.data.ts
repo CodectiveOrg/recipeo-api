@@ -3,31 +3,25 @@ import { SeedUserType } from "@/seed/types/seed-user.type";
 export const usersData: SeedUserType[] = [
   {
     username: "BijanProgrammer",
-    email: "bijan@gmail.com",
+    email: "bijaneisapour@gmail.com",
     password: "1234",
     picture: null,
   },
   {
     username: "ZahraZare",
-    email: "zahrazare@gmail.com",
+    email: "zahrazare3099@gmail.com",
     password: "1234",
     picture: null,
   },
   {
-    username: "mazaherireza",
-    email: "mazaherireza@gmail.com",
+    username: "RezaMazaheri",
+    email: "rezamazaheri.email@gmail.com",
     password: "1234",
     picture: null,
   },
   {
-    username: "Alireza",
-    email: "alireza@gmail.com",
-    password: "1234",
-    picture: null,
-  },
-  {
-    username: "vishkayee",
-    email: "vishkayee@gmail.com",
+    username: "AlirezaEghtedar",
+    email: "alireza.ce2001@gmail.com",
     password: "1234",
     picture: null,
   },
