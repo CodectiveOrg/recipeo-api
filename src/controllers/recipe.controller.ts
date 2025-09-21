@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { Repository } from "typeorm";
+import { DeepPartial, ILike, Repository } from "typeorm";
 
 import { z } from "zod";
 
@@ -8,11 +8,10 @@ import { IngredientSchema } from "@/validation/schemas/ingredient.schema";
 import {
   RecipeDescriptionSchema,
   RecipeDurationSchema,
-  RecipePictureSchema,
   RecipeTitleSchema,
 } from "@/validation/schemas/recipe.schema";
 import { StepSchema } from "@/validation/schemas/step.schema";
-import { TagSchema } from "@/validation/schemas/tag.schema";
+import { TagArraySchema } from "@/validation/schemas/tag.schema";
 
 import {
   CreateRecipeResponseDto,
@@ -29,12 +28,17 @@ import { Recipe } from "@/entities/recipe";
 import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
+import { FileService } from "@/services/file.service";
 import { RecipeService } from "@/services/recipe.service";
 
 import { fetchUserFromToken } from "@/utils/api.utils";
 import { mapToPositionAppended } from "@/utils/mapper.utils";
+import { parseJson } from "@/utils/zod.utils";
 
 export class RecipeController {
+  private readonly recipeFileService: FileService;
+  private readonly stepFileService: FileService;
+
   private readonly featuredRepo: Repository<Featured>;
   private readonly likeRepo: Repository<Like>;
   private readonly recipeRepo: Repository<Recipe>;
@@ -43,6 +47,9 @@ export class RecipeController {
   private readonly recipeService: RecipeService;
 
   public constructor(databaseService: DatabaseService) {
+    this.recipeFileService = new FileService("recipe");
+    this.stepFileService = new FileService("step");
+
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
     this.likeRepo = databaseService.dataSource.getRepository(Like);
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
@@ -70,12 +77,44 @@ export class RecipeController {
     const body = CreateBodySchema.parse(req.body);
     const user = await fetchUserFromToken(res, this.userRepo);
 
-    const recipe = {
+    const foundRecipe = await this.recipeRepo.exists({
+      where: {
+        title: ILike(body.title),
+      },
+    });
+
+    if (foundRecipe) {
+      res.status(400).json({
+        message: "A recipe with the same title already exists.",
+        error: "Bad Request",
+      });
+
+      return;
+    }
+
+    const recipe: DeepPartial<Recipe> = {
       ...body,
       ingredients: mapToPositionAppended(body.ingredients),
       steps: mapToPositionAppended(body.steps),
       user,
     };
+
+    if (req.files && Array.isArray(req.files)) {
+      for (let i = 0; i < req.files.length; i++) {
+        const picture = req.files[i];
+
+        if (picture.fieldname === "picture") {
+          recipe.picture = await this.recipeFileService.save(picture);
+        } else {
+          const matches = /^stepPicture\.(\d+)$/.exec(picture.fieldname);
+          if (matches && matches[1] && !Number.isNaN(+matches[1])) {
+            const index = +matches[1];
+            recipe.steps![index].picture =
+              await this.stepFileService.save(picture);
+          }
+        }
+      }
+    }
 
     const savedRecipe = await this.recipeRepo.save(recipe);
 
@@ -349,10 +388,9 @@ const CreateBodySchema = z.object({
   title: RecipeTitleSchema,
   description: RecipeDescriptionSchema,
   duration: RecipeDurationSchema,
-  picture: RecipePictureSchema,
-  tags: z.array(TagSchema),
-  ingredients: z.array(IngredientSchema),
-  steps: z.array(StepSchema),
+  ingredients: z.preprocess(parseJson, z.array(IngredientSchema)),
+  steps: z.preprocess(parseJson, z.array(StepSchema)),
+  tags: z.preprocess(parseJson, TagArraySchema),
 });
 
 const IdParamsSchema = z.object({

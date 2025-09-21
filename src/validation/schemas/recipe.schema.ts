@@ -1,9 +1,16 @@
 import { z } from "zod";
 
-export const RecipeTitleSchema = z.string();
+export const RecipeTitleSchema = z
+  .string("Title must be a string.")
+  .trim()
+  .nonempty("Title cannot be empty.");
 
-export const RecipeDescriptionSchema = z.string();
+export const RecipeDescriptionSchema = z
+  .string("Description must be a string.")
+  .trim();
 
-export const RecipeDurationSchema = z.number().min(1);
-
-export const RecipePictureSchema = z.string().nullable();
+export const RecipeDurationSchema = z.coerce
+  .number()
+  .int("Duration must be an integer.")
+  .min(1, "Duration must be greater than 1 minute.")
+  .max(24 * 60, `Duration must be less than ${24 * 60} minutes.`);

@@ -13,6 +13,9 @@ export class Step {
   @Column("text")
   public description!: string;
 
+  @Column("text", { nullable: true })
+  public picture!: string | null;
+
   @ManyToOne(() => Recipe, (recipe) => recipe.steps)
   public recipe!: Recipe;
 }

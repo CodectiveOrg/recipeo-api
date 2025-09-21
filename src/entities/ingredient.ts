@@ -10,9 +10,6 @@ export class Ingredient {
   @Column("int")
   public position!: number;
 
-  @Column("float")
-  public amount!: number;
-
   @Column("text")
   public title!: string;
 

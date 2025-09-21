@@ -14,7 +14,11 @@ import { SpoonacularRecipeType } from "@/seed/types/spoonacular-recipe.type";
 
 import { DatabaseService } from "@/services/database.service";
 
-import { capitalize, formatFilenamePrefix } from "@/utils/format.utils";
+import {
+  capitalize,
+  formatAmount,
+  formatFilenamePrefix,
+} from "@/utils/format.utils";
 
 const BASE_URL = "https://api.spoonacular.com/recipes/random";
 
@@ -176,6 +180,7 @@ export class RecipeSeeder {
       steps: steps.map((x) => ({
         position: x.number,
         description: x.step,
+        picture: null,
       })),
     };
   }
@@ -185,8 +190,10 @@ export class RecipeSeeder {
   ): SeedRecipeType["ingredients"] {
     return recipe.extendedIngredients.map((x, i) => ({
       position: i + 1,
-      amount: Math.round(x.amount * 8) / 8,
-      title: [x.unit, x.name].filter(Boolean).map(capitalize).join(" "),
+      title: [formatAmount(x.amount), x.unit, x.name]
+        .filter(Boolean)
+        .map(capitalize)
+        .join(" "),
     }));
   }
 
