@@ -180,6 +180,7 @@ export class RecipeSeeder {
       steps: steps.map((x) => ({
         position: x.number,
         description: x.step,
+        picture: null,
       })),
     };
   }

@@ -36,7 +36,8 @@ import { mapToPositionAppended } from "@/utils/mapper.utils";
 import { parseJson } from "@/utils/zod.utils";
 
 export class RecipeController {
-  private readonly fileService: FileService;
+  private readonly recipeFileService: FileService;
+  private readonly stepFileService: FileService;
 
   private readonly featuredRepo: Repository<Featured>;
   private readonly likeRepo: Repository<Like>;
@@ -46,7 +47,8 @@ export class RecipeController {
   private readonly recipeService: RecipeService;
 
   public constructor(databaseService: DatabaseService) {
-    this.fileService = new FileService("recipe");
+    this.recipeFileService = new FileService("recipe");
+    this.stepFileService = new FileService("step");
 
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
     this.likeRepo = databaseService.dataSource.getRepository(Like);
@@ -97,8 +99,21 @@ export class RecipeController {
       user,
     };
 
-    if (req.file) {
-      recipe.picture = await this.fileService.save(req.file);
+    if (req.files && Array.isArray(req.files)) {
+      for (let i = 0; i < req.files.length; i++) {
+        const picture = req.files[i];
+
+        if (picture.fieldname === "picture") {
+          recipe.picture = await this.recipeFileService.save(picture);
+        } else {
+          const matches = /^stepPicture\.(\d+)$/.exec(picture.fieldname);
+          if (matches && matches[1] && !Number.isNaN(+matches[1])) {
+            const index = +matches[1];
+            recipe.steps![index].picture =
+              await this.stepFileService.save(picture);
+          }
+        }
+      }
     }
 
     const savedRecipe = await this.recipeRepo.save(recipe);

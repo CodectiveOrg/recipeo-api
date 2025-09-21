@@ -17,7 +17,7 @@ export function generateRecipeRoutes(databaseService: DatabaseService): Router {
   router.post(
     "/",
     authMiddleware,
-    upload.single("picture"),
+    upload.any(),
     pictureMiddleware,
     controller.create,
   );
