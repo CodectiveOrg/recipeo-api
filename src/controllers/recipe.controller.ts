@@ -8,11 +8,10 @@ import { IngredientSchema } from "@/validation/schemas/ingredient.schema";
 import {
   RecipeDescriptionSchema,
   RecipeDurationSchema,
-  RecipePictureSchema,
   RecipeTitleSchema,
 } from "@/validation/schemas/recipe.schema";
 import { StepSchema } from "@/validation/schemas/step.schema";
-import { TagSchema } from "@/validation/schemas/tag.schema";
+import { TagArraySchema } from "@/validation/schemas/tag.schema";
 
 import {
   CreateRecipeResponseDto,
@@ -349,8 +348,7 @@ const CreateBodySchema = z.object({
   title: RecipeTitleSchema,
   description: RecipeDescriptionSchema,
   duration: RecipeDurationSchema,
-  picture: RecipePictureSchema,
-  tags: z.array(TagSchema),
+  tags: TagArraySchema,
   ingredients: z.array(IngredientSchema),
   steps: z.array(StepSchema),
 });
