@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { Repository } from "typeorm";
+import { DeepPartial, ILike, Repository } from "typeorm";
 
 import { z } from "zod";
 
@@ -28,6 +28,7 @@ import { Recipe } from "@/entities/recipe";
 import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
+import { FileService } from "@/services/file.service";
 import { RecipeService } from "@/services/recipe.service";
 
 import { fetchUserFromToken } from "@/utils/api.utils";
@@ -35,6 +36,8 @@ import { mapToPositionAppended } from "@/utils/mapper.utils";
 import { parseJson } from "@/utils/zod.utils";
 
 export class RecipeController {
+  private readonly fileService: FileService;
+
   private readonly featuredRepo: Repository<Featured>;
   private readonly likeRepo: Repository<Like>;
   private readonly recipeRepo: Repository<Recipe>;
@@ -43,6 +46,8 @@ export class RecipeController {
   private readonly recipeService: RecipeService;
 
   public constructor(databaseService: DatabaseService) {
+    this.fileService = new FileService("recipe");
+
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
     this.likeRepo = databaseService.dataSource.getRepository(Like);
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
@@ -70,12 +75,31 @@ export class RecipeController {
     const body = CreateBodySchema.parse(req.body);
     const user = await fetchUserFromToken(res, this.userRepo);
 
-    const recipe = {
+    const foundRecipe = await this.recipeRepo.exists({
+      where: {
+        title: ILike(body.title),
+      },
+    });
+
+    if (foundRecipe) {
+      res.status(400).json({
+        message: "A recipe with the same title already exists.",
+        error: "Bad Request",
+      });
+
+      return;
+    }
+
+    const recipe: DeepPartial<Recipe> = {
       ...body,
       ingredients: mapToPositionAppended(body.ingredients),
       steps: mapToPositionAppended(body.steps),
       user,
     };
+
+    if (req.file) {
+      recipe.picture = await this.fileService.save(req.file);
+    }
 
     const savedRecipe = await this.recipeRepo.save(recipe);
 
