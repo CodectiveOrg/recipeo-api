@@ -25,6 +25,7 @@ import { ResponseDto } from "@/dto/response.dto";
 import { Featured } from "@/entities/featured";
 import { Like } from "@/entities/like";
 import { Recipe } from "@/entities/recipe";
+import { Tag } from "@/entities/tag";
 import { User } from "@/entities/user";
 
 import { DatabaseService } from "@/services/database.service";
@@ -42,6 +43,7 @@ export class RecipeController {
   private readonly featuredRepo: Repository<Featured>;
   private readonly likeRepo: Repository<Like>;
   private readonly recipeRepo: Repository<Recipe>;
+  private readonly tagRepo: Repository<Tag>;
   private readonly userRepo: Repository<User>;
 
   private readonly recipeService: RecipeService;
@@ -53,6 +55,7 @@ export class RecipeController {
     this.featuredRepo = databaseService.dataSource.getRepository(Featured);
     this.likeRepo = databaseService.dataSource.getRepository(Like);
     this.recipeRepo = databaseService.dataSource.getRepository(Recipe);
+    this.tagRepo = databaseService.dataSource.getRepository(Tag);
     this.userRepo = databaseService.dataSource.getRepository(User);
 
     this.recipeService = new RecipeService(databaseService);
@@ -92,10 +95,17 @@ export class RecipeController {
       return;
     }
 
+    const tags = await this.tagRepo.find();
+    const titleToTagMap = new Map(tags.map((tag) => [tag.title, tag]));
+
     const recipe: DeepPartial<Recipe> = {
       ...body,
       ingredients: mapToPositionAppended(body.ingredients),
       steps: mapToPositionAppended(body.steps),
+      tags: body.tags
+        .map((tag) => titleToTagMap.get(tag.title)?.id)
+        .filter(Boolean)
+        .map((id) => ({ id })),
       user,
     };
 
