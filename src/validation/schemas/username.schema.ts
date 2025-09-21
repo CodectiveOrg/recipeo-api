@@ -1,6 +1,11 @@
 import { z } from "zod";
 
 export const UsernameSchema = z
-  .string()
-  .min(3, "Username must be at least 6 characters long")
-  .max(16, "Username must be a maximum of 16 characters long");
+  .string("Username must be a string.")
+  .trim()
+  .regex(
+    /^[a-zA-Z0-9_]+$/,
+    "Username must only contain letters, numbers and underline.",
+  )
+  .min(3, "Username must be more than 3 characters long.")
+  .max(32, "Username must be less than 32 characters long.");

@@ -17,7 +17,8 @@ import { DatabaseService } from "@/services/database.service";
 import { FileService } from "@/services/file.service";
 
 import { fetchUserFromToken } from "@/utils/api.utils";
-import { hashPassword } from "@/utils/auth.utils";
+import { generateToken, hashPassword } from "@/utils/auth.utils";
+import { mapToTokenPayload } from "@/utils/mapper.utils";
 import { assignDefinedValues } from "@/utils/object.utils";
 
 export class UserController {
@@ -44,6 +45,7 @@ export class UserController {
 
     const { entities, raw } = await this.userRepo
       .createQueryBuilder("user")
+      .addSelect("user.email")
       .addSelect(
         (qb) =>
           qb
@@ -88,14 +90,15 @@ export class UserController {
       body.password = undefined;
     }
 
-    const updatedUser = assignDefinedValues(user, body);
+    const values = assignDefinedValues(user, body);
 
     if (req.file) {
       await this.fileService.remove(user.picture);
-      updatedUser.picture = await this.fileService.save(req.file);
+      values.picture = await this.fileService.save(req.file);
     }
 
-    await this.userRepo.save(updatedUser);
+    const updatedUser = await this.userRepo.save(values);
+    generateToken(res, mapToTokenPayload(updatedUser));
 
     res.json({ message: "Profile updated successfully." });
   }
