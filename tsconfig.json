@@ -12,7 +12,7 @@
     "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
-    "emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": false,
     "experimentalDecorators": true,
     "baseUrl": "./src",
     "paths": {
