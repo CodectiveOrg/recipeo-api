@@ -1,0 +1,13 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: BijanProgrammerWebsites/hub/.github/workflows/deploy-nodejs.yml@master
+    with:
+      process-name: recipeo-api
+    secrets:
+      ENV_FILE: ${{ secrets.ENV_FILE }}

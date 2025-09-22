@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from "typeorm";
 
 import { Recipe } from "@/entities/recipe";
 
@@ -17,5 +23,5 @@ export class Step {
   public picture!: string | null;
 
   @ManyToOne(() => Recipe, (recipe) => recipe.steps)
-  public recipe!: Recipe;
+  public recipe!: Relation<Recipe>;
 }

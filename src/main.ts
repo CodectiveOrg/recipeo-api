@@ -35,11 +35,11 @@ async function main(): Promise<void> {
   app.use(cookieParser());
   app.use(cors({ origin: true, credentials: true }));
 
-  app.use("/api/auth", generateAuthRoutes(databaseService));
-  app.use("/api/public", generatePublicRoutes(databaseService));
-  app.use("/api/recipe", generateRecipeRoutes(databaseService));
-  app.use("/api/tag", generateTagRoutes(databaseService));
-  app.use("/api/user", generateUserRoutes(databaseService));
+  app.use("/auth", generateAuthRoutes(databaseService));
+  app.use("/public", generatePublicRoutes(databaseService));
+  app.use("/recipe", generateRecipeRoutes(databaseService));
+  app.use("/tag", generateTagRoutes(databaseService));
+  app.use("/user", generateUserRoutes(databaseService));
 
   app.use(globalErrorHandler);
 

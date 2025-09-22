@@ -1,11 +1,12 @@
 {
   "name": "recipeo-api",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "start": "tsx src/main.ts",
     "prebuild": "rimraf dist/",
-    "build": "tsc",
+    "build": "tsc && tsc-alias --resolve-full-paths --resolve-full-extension .js",
     "preview": "node dist/main.js",
     "seed": "tsx src/seed/index.ts",
     "truncate": "tsx src/truncate/index.ts",
@@ -25,6 +26,7 @@
     "@types/node": "^24.3.0",
     "eslint": "^9.34.0",
     "prettier": "^3.6.2",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.20.4",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.40.0"
