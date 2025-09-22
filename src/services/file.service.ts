@@ -35,6 +35,21 @@ export class FileService {
     return filenameWithExtension;
   }
 
+  public async copy(filenameWithExtension: string | null): Promise<void> {
+    if (!filenameWithExtension) {
+      return;
+    }
+
+    const source = path.join(
+      path.relative(process.cwd(), "./assets/pictures/"),
+      filenameWithExtension,
+    );
+
+    const destination = path.join(this.folderPath, filenameWithExtension);
+
+    await fs.copyFile(source, destination);
+  }
+
   public static async load(
     folder: string,
     filename: string,

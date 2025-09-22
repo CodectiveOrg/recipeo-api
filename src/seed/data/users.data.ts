@@ -5,7 +5,7 @@ export const usersData: SeedUserType[] = [
     username: "BijanProgrammer",
     email: "bijaneisapour@gmail.com",
     password: "1234",
-    picture: null,
+    picture: "BijanProgrammer.jpg",
   },
   {
     username: "ZahraZare",
