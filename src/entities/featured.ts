@@ -6,6 +6,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Relation,
 } from "typeorm";
 
 import { Recipe } from "@/entities/recipe";
@@ -20,7 +21,7 @@ export class Featured {
 
   @OneToOne(() => Recipe)
   @JoinColumn()
-  public recipe!: Recipe;
+  public recipe!: Relation<Recipe>;
 
   @CreateDateColumn()
   public createdAt!: Date;

@@ -7,7 +7,7 @@
     "start": "tsx src/main.ts",
     "prebuild": "rimraf dist/",
     "build": "tsc && tsc-alias --resolve-full-paths --resolve-full-extension .js",
-    "preview": "node --env-file=.env -r tsconfig-paths/register dist/main.js",
+    "preview": "node dist/main.js",
     "seed": "tsx src/seed/index.ts",
     "truncate": "tsx src/truncate/index.ts",
     "lint": "eslint .",
