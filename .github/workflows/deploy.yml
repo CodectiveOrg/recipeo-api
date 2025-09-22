@@ -1,0 +1,12 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: BijanProgrammerWebsites/hub/.github/workflows/deploy-nodejs.yml@master
+    with:
+      process-name: recipeo-api
