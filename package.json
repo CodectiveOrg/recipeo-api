@@ -1,6 +1,7 @@
 {
   "name": "recipeo-api",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "start": "tsx src/main.ts",
