@@ -10,4 +10,5 @@ jobs:
     uses: BijanProgrammerWebsites/hub/.github/workflows/deploy-nodejs.yml@master
     with:
       process-name: recipeo-api
-    secrets: inherit
+    secrets:
+      ENV_FILE: ${{ secrets.ENV_FILE }}
