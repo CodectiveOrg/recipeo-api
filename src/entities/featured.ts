@@ -5,8 +5,8 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
   Relation,
+  UpdateDateColumn,
 } from "typeorm";
 
 import { Recipe } from "@/entities/recipe";

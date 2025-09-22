@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from "typeorm";
 
 import { Recipe } from "@/entities/recipe";
 

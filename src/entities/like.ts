@@ -3,8 +3,8 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
   Relation,
+  Unique,
 } from "typeorm";
 
 import { Recipe } from "@/entities/recipe";

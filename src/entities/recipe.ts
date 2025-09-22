@@ -8,8 +8,8 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
   Relation,
+  UpdateDateColumn,
 } from "typeorm";
 
 import { Featured } from "@/entities/featured";

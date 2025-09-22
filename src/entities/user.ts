@@ -6,9 +6,9 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
   VirtualColumn,
-  Relation,
 } from "typeorm";
 
 import { Like } from "@/entities/like";
