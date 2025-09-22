@@ -107,8 +107,29 @@ export class RecipeSeeder {
       recipes: SpoonacularRecipeType[];
     };
 
-    await this.fetchTags(data.recipes);
-    return await this.convertAllToRecipes(data.recipes);
+    const nonExistingRecipes = await this.filterExistingRecipes(data.recipes);
+
+    await this.fetchTags(nonExistingRecipes);
+    return await this.convertAllToRecipes(nonExistingRecipes);
+  }
+
+  private async filterExistingRecipes(
+    spoonacularRecipes: SpoonacularRecipeType[],
+  ): Promise<SpoonacularRecipeType[]> {
+    const databaseRecipes = await this.recipeRepo.find({
+      select: { title: true },
+    });
+
+    const usedTitles = new Set(databaseRecipes.map((recipe) => recipe.title));
+
+    return spoonacularRecipes.filter((recipe) => {
+      if (usedTitles.has(recipe.title)) {
+        return false;
+      }
+
+      usedTitles.add(recipe.title);
+      return true;
+    });
   }
 
   private async fetchTags(
