@@ -9,7 +9,7 @@ jobs:
     uses: BijanProgrammerWebsites/hub/.github/workflows/deploy-express.yml@master
     with:
       process-name: recipeo-api
-      port: 3019
+      port: 3009
     secrets:
       SERVER_HOST: ${{secrets.SERVER_HOST}}
       SERVER_USERNAME: ${{secrets.SERVER_USERNAME}}
