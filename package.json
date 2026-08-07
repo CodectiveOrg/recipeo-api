@@ -1,15 +1,12 @@
 {
   "name": "recipeo-api",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "tsx watch src/main.ts",
-    "start": "tsx src/main.ts",
-    "prebuild": "rimraf dist/",
-    "build": "tsc && tsc-alias --resolve-full-paths --resolve-full-extension .js",
-    "preview": "node dist/main.js",
-    "seed": "tsx src/seed/index.ts",
-    "truncate": "tsx src/truncate/index.ts",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsup",
+    "start": "node dist/server.js",
+    "seed": "node dist/seed.js",
+    "truncate": "node dist/truncate.js",
     "lint": "eslint .",
     "prettier:check": "prettier . --check",
     "prettier:fix": "prettier . --write"
@@ -17,22 +14,22 @@
   "devDependencies": {
     "@eslint/js": "^9.34.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
-    "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.3.0",
+    "esbuild-plugin-tsc": "^0.6.0",
     "eslint": "^9.34.0",
     "prettier": "^3.6.2",
-    "tsc-alias": "^1.8.16",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.4",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.40.0"
   },
   "dependencies": {
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -46,5 +43,9 @@
     "rimraf": "^6.0.1",
     "typeorm": "^0.3.26",
     "zod": "^4.0.17"
+  },
+  "allowScripts": {
+    "esbuild@0.25.9": true,
+    "esbuild@0.27.7": true
   }
 }

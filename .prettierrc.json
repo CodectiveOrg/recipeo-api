@@ -6,7 +6,7 @@
     "^typeorm(/(.*))?$",
     "^multer(/(.*))?$",
     "^file-type(/(.*))?$",
-    "^(jsonwebtoken|bcrypt)(/(.*))?$",
+    "^(jsonwebtoken|bcryptjs)(/(.*))?$",
     "^zod(/(.*))?$",
     "^(reflect-metadata|dotenv)(/(.*))?$",
     "<THIRD_PARTY_MODULES>",

@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { TokenPayloadType } from "@/types/token-payload.type";

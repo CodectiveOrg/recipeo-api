@@ -6,8 +6,13 @@ on:
 
 jobs:
   deploy:
-    uses: BijanProgrammerWebsites/hub/.github/workflows/deploy-nodejs.yml@master
+    uses: BijanProgrammerWebsites/hub/.github/workflows/deploy-express.yml@master
     with:
       process-name: recipeo-api
+      port: 3019
     secrets:
+      SERVER_HOST: ${{secrets.SERVER_HOST}}
+      SERVER_USERNAME: ${{secrets.SERVER_USERNAME}}
+      SERVER_PORT: ${{secrets.SERVER_PORT}}
+      SERVER_SSH_KEY: ${{secrets.SERVER_SSH_KEY}}
       ENV_FILE: ${{ secrets.ENV_FILE }}
