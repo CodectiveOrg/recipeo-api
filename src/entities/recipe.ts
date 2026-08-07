@@ -8,7 +8,6 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
-  type Relation,
   UpdateDateColumn,
 } from "typeorm";
 
@@ -41,24 +40,24 @@ export class Recipe {
 
   @ManyToMany(() => Tag)
   @JoinTable()
-  public tags!: Relation<Tag>[];
+  public tags!: Tag[];
 
   @OneToMany(() => Ingredient, (ingredient) => ingredient.recipe, {
     cascade: true,
   })
-  public ingredients!: Relation<Ingredient>[];
+  public ingredients!: Ingredient[];
 
   @OneToMany(() => Step, (step) => step.recipe, { cascade: true })
-  public steps!: Relation<Step>[];
+  public steps!: Step[];
 
   @ManyToOne(() => User, (user) => user.recipes)
-  public user!: Relation<User>;
+  public user!: User;
 
   @OneToMany(() => Like, (like) => like.recipe)
-  public likes!: Relation<Like>[];
+  public likes!: Like[];
 
   @OneToOne(() => Featured, (featured) => featured.recipe, { cascade: true })
-  public featured!: Relation<Featured>;
+  public featured!: Featured;
 
   @CreateDateColumn()
   public createdAt!: Date;

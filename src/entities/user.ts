@@ -6,7 +6,6 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  type Relation,
   UpdateDateColumn,
   VirtualColumn,
 } from "typeorm";
@@ -32,17 +31,17 @@ export class User {
   public picture!: string | null;
 
   @OneToMany(() => Recipe, (recipe) => recipe.user)
-  public recipes!: Relation<Recipe>[];
+  public recipes!: Recipe[];
 
   @OneToMany(() => Like, (like) => like.user)
-  public likes!: Relation<Like>[];
+  public likes!: Like[];
 
   @ManyToMany(() => User, (user) => user.following)
   @JoinTable()
-  public followers!: Relation<User>[];
+  public followers!: User[];
 
   @ManyToMany(() => User, (user) => user.followers)
-  public following!: Relation<User>[];
+  public following!: User[];
 
   @CreateDateColumn({ select: false })
   public createdAt!: Date;

@@ -3,7 +3,6 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  type Relation,
   Unique,
 } from "typeorm";
 
@@ -17,10 +16,10 @@ export class Like {
   public id!: number;
 
   @ManyToOne(() => User, (user) => user.likes, { onDelete: "CASCADE" })
-  public user!: Relation<User>;
+  public user!: User;
 
   @ManyToOne(() => Recipe, (recipe) => recipe.likes, { onDelete: "CASCADE" })
-  public recipe!: Relation<Recipe>;
+  public recipe!: Recipe;
 
   @CreateDateColumn()
   public createdAt!: Date;
