@@ -3,7 +3,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Relation,
+  type Relation,
 } from "typeorm";
 
 import { Recipe } from "@/entities/recipe";

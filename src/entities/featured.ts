@@ -5,7 +5,7 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  Relation,
+  type Relation,
   UpdateDateColumn,
 } from "typeorm";
 

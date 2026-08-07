@@ -6,7 +6,7 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  Relation,
+  type Relation,
   UpdateDateColumn,
   VirtualColumn,
 } from "typeorm";
