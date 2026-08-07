@@ -11,6 +11,7 @@ export default defineConfig({
   format: ["cjs"],
   target: "node24",
   minify: true,
+  keepNames: true,
   sourcemap: false,
   clean: true,
   treeshake: true,
