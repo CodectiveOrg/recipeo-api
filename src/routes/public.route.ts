@@ -8,6 +8,7 @@ export function generatePublicRoutes(databaseService: DatabaseService): Router {
   const router = Router();
   const controller = new PublicController(databaseService);
 
+  router.get("/health", controller.health);
   router.get("/picture/user/:filename", controller.getPicture("user"));
   router.get("/picture/recipe/:filename", controller.getPicture("recipe"));
   router.get("/picture/featured/:filename", controller.getPicture("featured"));

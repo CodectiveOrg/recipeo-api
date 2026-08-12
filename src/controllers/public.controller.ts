@@ -16,6 +16,14 @@ export class PublicController {
     this.fileService = new FileService("user");
 
     this.userRepo = databaseService.dataSource.getRepository(User);
+
+    this.health = this.health.bind(this);
+  }
+
+  public async health(_: Request, res: Response): Promise<void> {
+    res.json({
+      message: "API is healthy.",
+    });
   }
 
   public getPicture(folder: string): RequestHandler {
