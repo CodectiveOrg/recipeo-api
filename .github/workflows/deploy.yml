@@ -8,7 +8,9 @@ jobs:
   deploy:
     uses: BijanProgrammerWebsites/hub/.github/workflows/deploy-express.yml@master
     with:
-      process-name: recipeo-api
+      domain: api.recipeo.ir
+      base-href: /
+      process-name: api.recipeo.ir
       port: 3009
     secrets:
       SERVER_HOST: ${{secrets.SERVER_HOST}}
